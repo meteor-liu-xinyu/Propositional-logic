@@ -1,6 +1,5 @@
 #include "zhenzhibiao.h"
 #include <math.h>
-#include <string.h>
 
 
 Reasoning::Reasoning()
