@@ -5,6 +5,7 @@
 Reasoning::Reasoning()
 {
     cout << "否定:~、合取:^、析取:v、条件:>、双条件:<" << endl;
+    cout << "(命题变元不区分大小写，只能为A-Z除V外的字母)" << endl;
     cout << "请输入命题公式：";
     cin >> input;
     cout << endl;
