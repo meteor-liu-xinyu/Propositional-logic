@@ -28,6 +28,9 @@ public:
     char Or(char A, char B);
     char If(char A, char B);
     char Iff(char A, char B);
+    char Xor(char A, char B);
+    char Nand(char A, char B);
+    char Nor(char A, char B);
     void MakeTable();
     void CNF(); // 主合取范式
     void DNF(); // 主析取范式
