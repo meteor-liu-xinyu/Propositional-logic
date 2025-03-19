@@ -124,7 +124,7 @@ char Reasoning::Not(char A)
     {
         return 'F';
     }
-    else if (A == 'F')
+    else
     {
         return 'T';
     }
