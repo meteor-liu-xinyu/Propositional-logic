@@ -1,11 +1,12 @@
 #include "zhenzhibiao.h"
 #include <math.h>
+#include <string.h>
 
 
 Reasoning::Reasoning()
 {
     cout << "否定:~、合取:^、析取:v、条件:>、双条件:<" << endl;
-    cout << "(命题变元不区分大小写,只能为A-Z除V外的字母,支持中文括号)" << endl;
+    cout << "(命题变元不区分大小写,只能为A-Z除V外的字母)" << endl;
     cout << "请输入命题公式：";
     cin >> input;
     cout << endl;
@@ -17,14 +18,6 @@ Reasoning::Reasoning()
         {
             input.erase(i, 1);
             i--;
-        }
-        else if (input[i] == '（')
-        {
-            input[i] = '(';
-        }
-        else if (input[i] == '）')
-        {
-            input[i] = ')';
         }
         else if (input[i] == 'V') // 将大写字母V转换为小写字母v
         {
