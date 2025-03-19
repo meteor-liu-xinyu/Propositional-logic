@@ -25,6 +25,11 @@ Reasoning::Reasoning()
         {
             input[i] = input[i] - 'a' + 'A';
         }
+        if (!(input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == '>' || input[i] == '<' || input[i] == '(' || input[i] == ')' || (input[i] >= 'A' && input[i] <= 'Z')))
+        {
+            cout << "输入有误" << endl;
+        }
+        
     }
 
     FindArg(); // 获取命题变元名
@@ -32,10 +37,6 @@ Reasoning::Reasoning()
     // 在头尾添加括号
     input.insert(0, "(");
     input.insert(input.length(), ")");
-
-    MakeTable();
-    while (getchar() != '\n'); // 清空缓冲区
-    
 
 }
 
@@ -260,7 +261,7 @@ int Reasoning::CalculateValue(int n)
 
 void Reasoning::MakeTable()
 {
-    cout << endl;
+    cout << endl << "真值表:" << endl;
     for (int i = 0; i < Argnum; i++)
     {
         cout << ArgName[i]<< "\t";
@@ -276,12 +277,101 @@ void Reasoning::MakeTable()
             cout << bin[j] << "\t";
         }
         int value = CalculateValue(i);
+        Value.push_back(value);
         cout << "\t" << value << endl;
     }
+
+}
+
+void Reasoning::CNF()
+{
+    if (Argnum < 2)
+    {
+        return;
+    }
+    for (int i = 0; i < pow(2, Argnum); i++)
+    {
+        if (Value[i] == 0)
+        {
+            CNFstr.push_back('(');
+            int bin[Argnum] = {0};
+            DToB(i, bin);
+            for (int j = 0; j < Argnum; j++)
+            {
+                if (bin[Argnum-j-1] == 1)
+                {
+                    CNFstr.push_back('~');
+                }
+                CNFstr.push_back(ArgName[j]);
+                if (j != Argnum-1)
+                {
+                    CNFstr.push_back('v');
+                }
+            }
+            CNFstr.push_back(')');
+            CNFstr.push_back('^');
+        }
+    }
+    if (CNFstr.size() == 0) // 为永真式
+    {
+        CNFstr.push_back('T');
+    }
+    else
+    {
+        CNFstr.pop_back();
+    }
+}
+
+void Reasoning::DNF()
+{
+    if (Argnum < 2)
+    {
+        return;
+    }
+    for (int i = 0; i < pow(2, Argnum); i++)
+    {
+        if (Value[i] == 1)
+        {
+            DNFstr.push_back('(');
+            int bin[Argnum] = {0};
+            DToB(i, bin);
+            for (int j = 0; j < Argnum; j++)
+            {
+                if (bin[Argnum-j-1] == 0)
+                {
+                    DNFstr.push_back('~');
+                }
+                DNFstr.push_back(ArgName[j]);
+                if (j != Argnum-1)
+                {
+                    DNFstr.push_back('^');
+                }
+            }
+            DNFstr.push_back(')');
+            DNFstr.push_back('v');
+        }
+    }
+    if (DNFstr.size() == 0) // 为永假式
+    {
+        DNFstr.push_back('F');
+    }
+    else
+    {
+        DNFstr.pop_back();
+    }
+}
+
+void Reasoning::PrintNF()
+{
+    cout << endl << "主合取范式:" << endl;
+    cout << CNFstr << endl;
+    cout << endl << "主析取范式:" << endl;
+    cout << DNFstr << endl;
 
 }
 
 
 Reasoning::~Reasoning()
 {
+    return;
 }

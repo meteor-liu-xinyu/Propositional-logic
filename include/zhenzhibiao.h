@@ -12,6 +12,8 @@ private:
     vector<char> ArgName;
     int Argnum;
     vector<int> Value;
+    string CNFstr;
+    string DNFstr;
     
 public:
     Reasoning();
@@ -27,6 +29,9 @@ public:
     char If(char A, char B);
     char Iff(char A, char B);
     void MakeTable();
+    void CNF(); // 主合取范式
+    void DNF(); // 主析取范式
+    void PrintNF();
 
 };
 
