@@ -28,6 +28,13 @@ void Reasoning::Input()
     DNFstr = "";
     mode = 0;
 
+    string lbstr = "（";
+    string rbstr = "）";
+    char lb0 = lbstr[0];
+    char lb1 = lbstr[1];
+    char rb0 = rbstr[0];
+    char rb1 = rbstr[1];
+
     cout << endl << "请输入命题公式：";
     cin >> input;
     cout << endl;
@@ -37,6 +44,21 @@ void Reasoning::Input()
         while (getchar() != '\n');
         ifend = 1;
         return;
+    }
+    for (int i = 0; i < input.length(); i++) // 将中文括号转换为英文括号
+    {
+        if (i <= input.length() - 3 && input[i] == lb0 && input[i + 1] == lb1)
+        {
+            input.erase(i, 3);
+            input.insert(i, "(");
+            i--;
+        }
+        else if (i >= 2 && input[i - 2] == rb0 && input[i - 1] == rb1)
+        {
+            input.erase(i - 2, 3);
+            input.insert(i - 2, ")");
+            i--;
+        }
     }
 
     for (int i = 0; i < input.length(); i++) // 检查是否有符号混用
