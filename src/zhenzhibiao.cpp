@@ -15,7 +15,6 @@ void Reasoning::Input()
     cout << endl << "请输入命题公式：";
     cin >> input;
     cout << endl;
-    // input = "~(~A^Bv(A^~BVc)^A>C)>(CvA^B)";
 
     if (input == "/end")
     {
@@ -28,6 +27,11 @@ void Reasoning::Input()
 
     for (int i = 0; i < input.length(); i++) // 检查是否有符号混用
     {
+        if (input[i] == '\'')
+        {
+            input[i] = '`';
+        }
+        
         if (input[i] == '`' || input[i] == '*' || input[i] == '+')
         {
             if (mode == 0 || mode == 2)
@@ -37,6 +41,7 @@ void Reasoning::Input()
             else
             {
                 cout << "符号混用" << endl;
+                while (getchar() != '\n');
                 Input();
             }
         }
@@ -49,6 +54,7 @@ void Reasoning::Input()
             else
             {
                 cout << "符号混用" << endl;
+                while (getchar() != '\n');
                 Input();
             }
         }
@@ -84,7 +90,16 @@ void Reasoning::Input()
         {
             input[i] = input[i] - 'a' + 'A';
         }
-        initialinput = input;
+    }
+    initialinput = input;
+    if (count != 0)
+    {
+        cout << "括号不匹配" << endl;
+        while (getchar() != '\n');
+        Input();
+    }
+    for (int i = 0; i < input.length(); i++) // 将符号转换为统一的符号
+    {
         if (mode == 2)
         {
             if (input[i] == '*')
@@ -99,13 +114,9 @@ void Reasoning::Input()
         if (!(input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == '>' || input[i] == '<' || input[i] == '(' || input[i] == ')' || input[i] == '@' || input[i] == '[' || input[i] == ']' || input[i] == '`' || (input[i] >= 'A' && input[i] <= 'Z' && input[i] != 'V')))
         {
             cout << "输入有误" << endl;
+            while (getchar() != '\n');
             Input();
         }
-    }
-    if (count != 0)
-    {
-        cout << "括号不匹配" << endl;
-        Input();
     }
 
     FindArg(); // 获取命题变元名
@@ -132,7 +143,7 @@ void Reasoning::FindArg()
     {
         bool flag = true;
         // 跳过符号
-        if (input[i] != '~' && input[i] != '^' && input[i] != 'v' && input[i] != '@' && input[i] != '[' && input[i] != ']' && input[i] != '`' && input[i] != '>' && input[i] != '<' && input[i] != '(' && input[i] != ')')
+        if (input[i] != '~' && input[i] != '^' && input[i] != 'v' && input[i] != '@' && input[i] != '[' && input[i] != ']' && input[i] != '`' &&input[i] != '*' && input[i] != '+' && input[i] != '>' && input[i] != '<' && input[i] != '(' && input[i] != ')')
         {
             for (int j = 0; j < ArgName.size(); j++)
             {
@@ -520,7 +531,6 @@ void Reasoning::DNF()
         {
             if (Value[i] == 1)
             {
-                DNFstr.push_back('(');
                 int bin[Argnum] = {0};
                 DToB(i, bin);
                 for (int j = 0; j < Argnum; j++)
@@ -531,7 +541,6 @@ void Reasoning::DNF()
                         DNFstr.push_back('`');
                     }
                 }
-                DNFstr.push_back(')');
                 DNFstr.push_back('+');
             }
         }
