@@ -16,6 +16,7 @@ private:
     string CNFstr;
     string DNFstr;
     int mode;
+    int ifend;
     
 public:
     Reasoning();
@@ -40,6 +41,7 @@ public:
     void CNF(); // 主合取范式
     void DNF(); // 主析取范式
     void PrintNF();
+    int CheckEnd();
 
 };
 

@@ -13,6 +13,10 @@ RunWindow::RunWindow()
     while (1)
     {
         reasoning.Input();
+        if (reasoning.CheckEnd() == 1)
+        {
+            break;
+        }
         reasoning.MakeTable(); // 生成真值表
         reasoning.CNF(); // 生成CNF
         reasoning.DNF(); // 生成DNF

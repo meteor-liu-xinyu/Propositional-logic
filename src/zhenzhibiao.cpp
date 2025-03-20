@@ -5,6 +5,7 @@
 Reasoning::Reasoning()
 {
     mode = 0;
+    ifend = 0;
     return;
 }
 
@@ -18,7 +19,9 @@ void Reasoning::Input()
 
     if (input == "/end")
     {
-        exit(0);
+        while (getchar() != '\n');
+        ifend = 1;
+        return;
     }
 
     mode = 0;
@@ -122,9 +125,6 @@ void Reasoning::Input()
     while (getchar() != '\n'); // 清空缓冲区
 
 }
-
-
-
 
 void Reasoning::FindArg()
 {
@@ -552,6 +552,17 @@ void Reasoning::PrintNF()
 
 }
 
+int Reasoning::CheckEnd()
+{
+    if (ifend == 1)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
 
 Reasoning::~Reasoning()
 {

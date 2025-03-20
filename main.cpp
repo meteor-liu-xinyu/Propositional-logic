@@ -7,6 +7,7 @@ int main()
 
     RunWindow Main;
 
+    while (getchar() != '\n');
     getchar();
     
 	return 0;
