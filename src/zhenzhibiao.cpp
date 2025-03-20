@@ -26,6 +26,8 @@ void Reasoning::Input()
     }
     CNFstr = "";
     DNFstr = "";
+    CNFMstr = "";
+    DNFmstr = "";
     mode = 0;
 
     string lbstr = "（";
@@ -506,6 +508,9 @@ void Reasoning::CNF()
         {
             if (Value[i] == 0)
             {
+                CNFMstr.push_back('M');
+                string num = to_string(i);
+                CNFMstr.append(num);
                 CNFstr.push_back('(');
                 int bin[Argnum] = {0};
                 DToB(i, bin);
@@ -523,6 +528,7 @@ void Reasoning::CNF()
                 }
                 CNFstr.push_back(')');
                 CNFstr.push_back('^');
+                CNFMstr.push_back('^');
                 count++;
             }
             if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n' && count != 0)
@@ -537,6 +543,9 @@ void Reasoning::CNF()
         {
             if (Value[i] == 0)
             {
+                CNFMstr.push_back('M');
+                string num = to_string(i);
+                CNFMstr.append(num);
                 CNFstr.push_back('(');
                 int bin[Argnum] = {0};
                 DToB(i, bin);
@@ -553,6 +562,7 @@ void Reasoning::CNF()
                     }
                 }
                 CNFstr.push_back(')');
+                CNFMstr.push_back('*');
                 count++;
             }
             if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n' && count != 0)
@@ -568,6 +578,11 @@ void Reasoning::CNF()
     else if (mode == 1)
     {
         CNFstr.pop_back();
+        CNFMstr.pop_back();
+    }
+    else if (mode == 2)
+    {
+        CNFMstr.pop_back();
     }
 }
 
@@ -584,6 +599,9 @@ void Reasoning::DNF()
         {
             if (Value[i] == 1)
             {
+                DNFmstr.push_back('m');
+                string num = to_string(i);
+                DNFmstr.append(num);
                 DNFstr.push_back('(');
                 int bin[Argnum] = {0};
                 DToB(i, bin);
@@ -601,6 +619,7 @@ void Reasoning::DNF()
                 }
                 DNFstr.push_back(')');
                 DNFstr.push_back('v');
+                DNFmstr.push_back('v');
                 count++;
             }
             if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n' && count != 0)
@@ -615,6 +634,9 @@ void Reasoning::DNF()
         {
             if (Value[i] == 1)
             {
+                DNFmstr.push_back('m');
+                string num = to_string(i);
+                DNFmstr.append(num);
                 int bin[Argnum] = {0};
                 DToB(i, bin);
                 for (int j = 0; j < Argnum; j++)
@@ -626,6 +648,7 @@ void Reasoning::DNF()
                     }
                 }
                 DNFstr.push_back('+');
+                DNFmstr.push_back('+');
                 count++;
             }
             if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n' && count != 0)
@@ -641,6 +664,7 @@ void Reasoning::DNF()
     else
     {
         DNFstr.pop_back();
+        DNFmstr.pop_back();
     }
 }
 
@@ -652,8 +676,10 @@ void Reasoning::PrintNF()
     }
     cout << endl << "主合取范式:" << endl;
     cout << CNFstr << endl;
+    cout << CNFMstr << endl;
     cout << endl << "主析取范式:" << endl;
     cout << DNFstr << endl;
+    cout << DNFmstr << endl;
 
 }
 

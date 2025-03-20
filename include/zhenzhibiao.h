@@ -15,6 +15,8 @@ private:
     vector<int> Value;
     string CNFstr;
     string DNFstr;
+    string CNFMstr;
+    string DNFmstr;
     int mode;
     int ifend;
     
