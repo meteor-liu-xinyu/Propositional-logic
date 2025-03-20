@@ -34,6 +34,13 @@ void Reasoning::Input()
     char lb1 = lbstr[1];
     char rb0 = rbstr[0];
     char rb1 = rbstr[1];
+    string lcotstr = "‘";
+    string rcotstr = "’";
+    char lcot0 = lcotstr[0];
+    char lcot1 = lcotstr[1];
+    char rcot0 = rcotstr[0];
+    char rcot1 = rcotstr[1];
+
 
     cout << endl << "请输入命题公式：";
     cin >> input;
@@ -67,7 +74,18 @@ void Reasoning::Input()
         {
             input[i] = '`';
         }
-        
+        else if (i <= input.length() - 2 && input[i] == lcot0 && input[i + 1] == lcot1)
+        {
+            input.erase(i, 3);
+            input.insert(i, "`");
+            i--;
+        }
+        else if (i >= 1 && input[i - 1] == rcot0 && input[i] == rcot1)
+        {
+            input.erase(i - 1, 3);
+            input.insert(i - 1, "`");
+            i--;
+        }
         if (input[i] == '`' || input[i] == '*' || input[i] == '+')
         {
             if (mode == 0 || mode == 2)
@@ -466,7 +484,11 @@ void Reasoning::MakeTable()
         }
         int value = CalculateValue(i);
         Value.push_back(value);
-        cout << "\t" << value << endl;
+        if (initialinput.size() >= 10)
+        {
+            cout << "\t";
+        }
+        cout << value << endl;
     }
 
 }
@@ -503,7 +525,7 @@ void Reasoning::CNF()
                 CNFstr.push_back('^');
                 count++;
             }
-            if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n')
+            if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n' && count != 0)
             {
                 CNFstr.push_back('\n');
             }
@@ -533,7 +555,7 @@ void Reasoning::CNF()
                 CNFstr.push_back(')');
                 count++;
             }
-            if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n')
+            if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n' && count != 0)
             {
                 CNFstr.push_back('\n');
             }
@@ -581,7 +603,7 @@ void Reasoning::DNF()
                 DNFstr.push_back('v');
                 count++;
             }
-            if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n')
+            if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n' && count != 0)
             {
                 DNFstr.push_back('\n');
             }
@@ -606,7 +628,7 @@ void Reasoning::DNF()
                 DNFstr.push_back('+');
                 count++;
             }
-            if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n')
+            if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n' && count != 0)
             {
                 DNFstr.push_back('\n');
             }
