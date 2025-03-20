@@ -25,6 +25,7 @@ public:
     void FindArg();
     int FindLeft(string temp);
     int FindRight(string temp);
+    
     int CalculateValue(int n);
     void DToB(int n, int bin[]);
 

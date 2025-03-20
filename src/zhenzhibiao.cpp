@@ -12,6 +12,22 @@ Reasoning::Reasoning()
 
 void Reasoning::Input()
 {
+    // 重新初始化
+    input = "";
+    initialinput = "";
+    while (ArgName.size() != 0)
+    {
+        ArgName.pop_back();
+    }
+    Argnum = 0;
+    while (Value.size() != 0)
+    {
+        Value.pop_back();
+    }
+    CNFstr = "";
+    DNFstr = "";
+    mode = 0;
+
     cout << endl << "请输入命题公式：";
     cin >> input;
     cout << endl;
@@ -22,8 +38,6 @@ void Reasoning::Input()
         ifend = 1;
         return;
     }
-
-    mode = 0;
 
     for (int i = 0; i < input.length(); i++) // 检查是否有符号混用
     {
@@ -98,6 +112,13 @@ void Reasoning::Input()
         while (getchar() != '\n');
         Input();
     }
+    for (int i = 0; i < input.length(); i++) // 如果有省略*的情况就补上
+    {
+        if ((input[i] == '`' || input[i] == ')' || (input[i] >= 'A' && input[i] <= 'Z')) && (input[i + 1] == '(' || (input[i+1] >= 'A' && input[i+1] <='Z')))
+        {
+            input.insert(i+1, "*");
+        }
+    }
     for (int i = 0; i < input.length(); i++) // 将符号转换为统一的符号
     {
         if (mode == 2)
@@ -124,14 +145,6 @@ void Reasoning::Input()
     // 在头尾添加括号
     input.insert(0, "(");
     input.insert(input.length(), ")");
-
-    for (int i = 0; i < input.length(); i++)
-    {
-        if ((input[i] == '`' || input[i] == ')' || (input[i] >= 'A' && input[i] <= 'Z')) && (input[i + 1] == '(' || (input[i+1] >= 'A' && input[i+1] <='Z'))) // 如果有省略*的情况就补上
-        {
-            input.insert(i+1, "*");
-        }
-    }
 
     while (getchar() != '\n'); // 清空缓冲区
 
@@ -346,6 +359,15 @@ int Reasoning::CalculateValue(int n)
                     right--;
                 }
             }
+            for (int i = left+1; i < right; i++)
+            {
+                if ((input[i] >= 'A' && input[i] <= 'Z') && ((input[i+1] >= 'A' && input[i+1] <='Z')))
+                {
+                    input.insert(i+2,")");
+                    input.insert(i+1, "*");
+                    input.insert(i, "(");
+                }
+            }
         }
 
         for (int i = left+2; i < right-1; i++)
@@ -455,6 +477,7 @@ void Reasoning::CNF()
                 }
                 CNFstr.push_back(')');
                 CNFstr.push_back('^');
+                count++;
             }
         }
     }
@@ -480,10 +503,11 @@ void Reasoning::CNF()
                     }
                 }
                 CNFstr.push_back(')');
+                count++;
             }
         }
     }
-    if (CNFstr.size() == 0) // 为永真式
+    if (count == 0) // 为永真式
     {
         CNFstr.push_back('T');
     }
@@ -499,6 +523,7 @@ void Reasoning::DNF()
     {
         return;
     }
+    int count = 0;
     if (mode == 1)
     {
         for (int i = 0; i < pow(2, Argnum); i++)
@@ -522,6 +547,7 @@ void Reasoning::DNF()
                 }
                 DNFstr.push_back(')');
                 DNFstr.push_back('v');
+                count++;
             }
         }
     }
@@ -542,18 +568,26 @@ void Reasoning::DNF()
                     }
                 }
                 DNFstr.push_back('+');
+                count++;
             }
         }
     }
-    if (DNFstr.size() == 0) // 为永假式
+    if (count == 0) // 为永假式
     {
         DNFstr.push_back('F');
     }
-    DNFstr.pop_back();
+    else
+    {
+        DNFstr.pop_back();
+    }
 }
 
 void Reasoning::PrintNF()
 {
+    if (CNFstr.size() == 0 && DNFstr.size() == 0)
+    {
+        return;
+    }
     cout << endl << "主合取范式:" << endl;
     cout << CNFstr << endl;
     cout << endl << "主析取范式:" << endl;
