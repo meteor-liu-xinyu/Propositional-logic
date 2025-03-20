@@ -4,12 +4,59 @@
 
 Reasoning::Reasoning()
 {
-    cout << "否定:~、合取:^或*、析取:v或+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
-    cout << "(命题变元不区分大小写,只能为A-Z除V外的字母)" << endl;
-    cout << "请输入命题公式：";
+    mode = 0;
+    return;
+}
+
+
+void Reasoning::Input()
+{
+    cout << endl << "请输入命题公式：";
     cin >> input;
     cout << endl;
     // input = "~(~A^Bv(A^~BVc)^A>C)>(CvA^B)";
+
+    if (input == "/end")
+    {
+        exit(0);
+    }
+
+    mode = 0;
+
+    for (int i = 0; i < input.length(); i++) // 检查是否有符号混用
+    {
+        if (input[i] == '`' || input[i] == '*' || input[i] == '+')
+        {
+            if (mode == 0 || mode == 2)
+            {
+                mode = 2;
+            }
+            else
+            {
+                cout << "符号混用" << endl;
+                Input();
+            }
+        }
+        else if (input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == 'V')
+        {
+            if (mode == 0 || mode == 1)
+            {
+                mode = 1;
+            }
+            else
+            {
+                cout << "符号混用" << endl;
+                Input();
+            }
+        }
+    }
+    if (mode == 0)
+    {
+        mode = 1; // 默认
+    }
+    
+
+    int count = 0;
 
     for (int i = 0; i < input.length(); i++)
     {
@@ -18,15 +65,15 @@ Reasoning::Reasoning()
             input.erase(i, 1);
             i--;
         }
+        else if (input[i] == '(')
+        {
+            count++;
+        }
+        else if (input[i] == ')')
+        {
+            count--;
+        }
         else if (input[i] == 'V') // 将大写字母V转换为小写字母v
-        {
-            input[i] = 'v';
-        }
-        else if (input[i] == '*')
-        {
-            input[i] = '^';
-        }
-        else if (input[i] == '+')
         {
             input[i] = 'v';
         }
@@ -34,12 +81,28 @@ Reasoning::Reasoning()
         {
             input[i] = input[i] - 'a' + 'A';
         }
-        if (!(input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == '>' || input[i] == '<' || input[i] == '(' || input[i] == ')' || input[i] == '@' || input[i] == '[' || input[i] == ']' || (input[i] >= 'A' && input[i] <= 'Z' && input[i] != 'V')))
+        initialinput = input;
+        if (mode == 2)
+        {
+            if (input[i] == '*')
+            {
+                input[i] = '^';
+            }
+            else if (input[i] == '+')
+            {
+                input[i] = 'v';
+            }
+        }
+        if (!(input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == '>' || input[i] == '<' || input[i] == '(' || input[i] == ')' || input[i] == '@' || input[i] == '[' || input[i] == ']' || input[i] == '`' || (input[i] >= 'A' && input[i] <= 'Z' && input[i] != 'V')))
         {
             cout << "输入有误" << endl;
-            exit(0);
+            Input();
         }
-        
+    }
+    if (count != 0)
+    {
+        cout << "括号不匹配" << endl;
+        Input();
     }
 
     FindArg(); // 获取命题变元名
@@ -48,7 +111,19 @@ Reasoning::Reasoning()
     input.insert(0, "(");
     input.insert(input.length(), ")");
 
+    for (int i = 0; i < input.length(); i++)
+    {
+        if ((input[i] == '`' || input[i] == ')' || (input[i] >= 'A' && input[i] <= 'Z')) && (input[i + 1] == '(' || (input[i+1] >= 'A' && input[i+1] <='Z'))) // 如果有省略*的情况就补上
+        {
+            input.insert(i+1, "*");
+        }
+    }
+
+    while (getchar() != '\n'); // 清空缓冲区
+
 }
+
+
 
 
 void Reasoning::FindArg()
@@ -57,7 +132,7 @@ void Reasoning::FindArg()
     {
         bool flag = true;
         // 跳过符号
-        if (input[i] != '~' && input[i] != '^' && input[i] != 'v' && input[i] != '@' && input[i] != '[' && input[i] != ']' && input[i] != '>' && input[i] != '<' && input[i] != '(' && input[i] != ')')
+        if (input[i] != '~' && input[i] != '^' && input[i] != 'v' && input[i] != '@' && input[i] != '[' && input[i] != ']' && input[i] != '`' && input[i] != '>' && input[i] != '<' && input[i] != '(' && input[i] != ')')
         {
             for (int j = 0; j < ArgName.size(); j++)
             {
@@ -236,15 +311,32 @@ int Reasoning::CalculateValue(int n)
     {
         int right = FindRight(temp);
         int left = FindLeft(temp);
-        for (int i = left+1; i < right; i++) // 计算not运算
+        // 计算not运算
+        if (mode == 1)
         {
-            if (temp[i] == '~')
+            for (int i = left+1; i < right; i++)
             {
-                temp[i+1] = Not(temp[i+1]);
-                temp.erase(i, 1);
-                right--;
+                if (temp[i] == '~')
+                {
+                    temp[i+1] = Not(temp[i+1]);
+                    temp.erase(i, 1);
+                    right--;
+                }
             }
         }
+        else if (mode == 2)
+        {
+            for (int i = left+1; i < right; i++)
+            {
+                if (temp[i] == '`')
+                {
+                    temp[i-1] = Not(temp[i-1]);
+                    temp.erase(i, 1);
+                    right--;
+                }
+            }
+        }
+
         for (int i = left+2; i < right-1; i++)
         {
             if (temp[i] =='^' || temp[i] == 'v' || temp[i] == '>' || temp[i] == '<' || temp[i] == '@' || temp[i] == '[' || temp[i] == ']')
@@ -305,7 +397,7 @@ void Reasoning::MakeTable()
     {
         cout << ArgName[i]<< "\t";
     }
-    cout << input << endl;
+    cout << initialinput << endl;
     
     for (int i = 0; i < pow(2, Argnum); i++)
     {
@@ -328,34 +420,63 @@ void Reasoning::CNF()
     {
         return;
     }
-    for (int i = 0; i < pow(2, Argnum); i++)
+    int count = 0;
+    if (mode == 1)
     {
-        if (Value[i] == 0)
+        for (int i = 0; i < pow(2, Argnum); i++)
         {
-            CNFstr.push_back('(');
-            int bin[Argnum] = {0};
-            DToB(i, bin);
-            for (int j = 0; j < Argnum; j++)
+            if (Value[i] == 0)
             {
-                if (bin[Argnum-j-1] == 1)
+                CNFstr.push_back('(');
+                int bin[Argnum] = {0};
+                DToB(i, bin);
+                for (int j = 0; j < Argnum; j++)
                 {
-                    CNFstr.push_back('~');
+                    if (bin[Argnum-j-1] == 1)
+                    {
+                        CNFstr.push_back('~');
+                    }
+                    CNFstr.push_back(ArgName[j]);
+                    if (j != Argnum-1)
+                    {
+                        CNFstr.push_back('v');
+                    }
                 }
-                CNFstr.push_back(ArgName[j]);
-                if (j != Argnum-1)
-                {
-                    CNFstr.push_back('v');
-                }
+                CNFstr.push_back(')');
+                CNFstr.push_back('^');
             }
-            CNFstr.push_back(')');
-            CNFstr.push_back('^');
+        }
+    }
+    else if (mode == 2)
+    {
+        for (int i = 0; i < pow(2, Argnum); i++)
+        {
+            if (Value[i] == 0)
+            {
+                CNFstr.push_back('(');
+                int bin[Argnum] = {0};
+                DToB(i, bin);
+                for (int j = 0; j < Argnum; j++)
+                {
+                    CNFstr.push_back(ArgName[j]);
+                    if (bin[Argnum-j-1] == 1)
+                    {
+                        CNFstr.push_back('`');
+                    }
+                    if (j != Argnum-1)
+                    {
+                        CNFstr.push_back('+');
+                    }
+                }
+                CNFstr.push_back(')');
+            }
         }
     }
     if (CNFstr.size() == 0) // 为永真式
     {
         CNFstr.push_back('T');
     }
-    else
+    else if (mode == 1)
     {
         CNFstr.pop_back();
     }
@@ -367,37 +488,59 @@ void Reasoning::DNF()
     {
         return;
     }
-    for (int i = 0; i < pow(2, Argnum); i++)
+    if (mode == 1)
     {
-        if (Value[i] == 1)
+        for (int i = 0; i < pow(2, Argnum); i++)
         {
-            DNFstr.push_back('(');
-            int bin[Argnum] = {0};
-            DToB(i, bin);
-            for (int j = 0; j < Argnum; j++)
+            if (Value[i] == 1)
             {
-                if (bin[Argnum-j-1] == 0)
+                DNFstr.push_back('(');
+                int bin[Argnum] = {0};
+                DToB(i, bin);
+                for (int j = 0; j < Argnum; j++)
                 {
-                    DNFstr.push_back('~');
+                    if (bin[Argnum-j-1] == 0)
+                    {
+                        DNFstr.push_back('~');
+                    }
+                    DNFstr.push_back(ArgName[j]);
+                    if (j != Argnum-1)
+                    {
+                        DNFstr.push_back('^');
+                    }
                 }
-                DNFstr.push_back(ArgName[j]);
-                if (j != Argnum-1)
-                {
-                    DNFstr.push_back('^');
-                }
+                DNFstr.push_back(')');
+                DNFstr.push_back('v');
             }
-            DNFstr.push_back(')');
-            DNFstr.push_back('v');
+        }
+    }
+    else if (mode == 2)
+    {
+        for (int i = 0; i < pow(2, Argnum); i++)
+        {
+            if (Value[i] == 1)
+            {
+                DNFstr.push_back('(');
+                int bin[Argnum] = {0};
+                DToB(i, bin);
+                for (int j = 0; j < Argnum; j++)
+                {
+                    DNFstr.push_back(ArgName[j]);
+                    if (bin[Argnum-j-1] == 0)
+                    {
+                        DNFstr.push_back('`');
+                    }
+                }
+                DNFstr.push_back(')');
+                DNFstr.push_back('+');
+            }
         }
     }
     if (DNFstr.size() == 0) // 为永假式
     {
         DNFstr.push_back('F');
     }
-    else
-    {
-        DNFstr.pop_back();
-    }
+    DNFstr.pop_back();
 }
 
 void Reasoning::PrintNF()
