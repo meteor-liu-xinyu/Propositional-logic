@@ -112,13 +112,6 @@ void Reasoning::Input()
         while (getchar() != '\n');
         Input();
     }
-    for (int i = 0; i < input.length(); i++) // 如果有省略*的情况就补上
-    {
-        if ((input[i] == '`' || input[i] == ')' || (input[i] >= 'A' && input[i] <= 'Z')) && (input[i + 1] == '(' || (input[i+1] >= 'A' && input[i+1] <='Z')))
-        {
-            input.insert(i+1, "*");
-        }
-    }
     for (int i = 0; i < input.length(); i++) // 将符号转换为统一的符号
     {
         if (mode == 2)
@@ -130,6 +123,12 @@ void Reasoning::Input()
             else if (input[i] == '+')
             {
                 input[i] = 'v';
+            }
+            else if ((i == 0 && input[i] == '~') || (input[i] == '`' && !(input[i-1] >= 'A' && input[i-1] <= 'Z')))
+            {
+                cout << "输入有误" << endl;
+                while (getchar() != '\n');
+                Input();
             }
         }
         if (!(input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == '>' || input[i] == '<' || input[i] == '(' || input[i] == ')' || input[i] == '@' || input[i] == '[' || input[i] == ']' || input[i] == '`' || (input[i] >= 'A' && input[i] <= 'Z' && input[i] != 'V')))
@@ -359,13 +358,16 @@ int Reasoning::CalculateValue(int n)
                     right--;
                 }
             }
-            for (int i = left+1; i < right; i++)
+            for (int i = left+1; i < right-1; i++)
             {
-                if ((input[i] >= 'A' && input[i] <= 'Z') && ((input[i+1] >= 'A' && input[i+1] <='Z')))
+                if ((temp[i] >= 'A' && temp[i] <= 'Z') && ((temp[i+1] >= 'A' && temp[i+1] <='Z')))
                 {
-                    input.insert(i+2,")");
-                    input.insert(i+1, "*");
-                    input.insert(i, "(");
+                    temp.insert(i+2,")");
+                    temp.insert(i+1, "^");
+                    temp.insert(i, "(");
+                    right = FindRight(temp);
+                    left = FindLeft(temp);
+                    break;
                 }
             }
         }
