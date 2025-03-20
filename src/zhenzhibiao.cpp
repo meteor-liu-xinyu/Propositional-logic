@@ -481,6 +481,10 @@ void Reasoning::CNF()
                 CNFstr.push_back('^');
                 count++;
             }
+            if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n')
+            {
+                CNFstr.push_back('\n');
+            }
         }
     }
     else if (mode == 2)
@@ -506,6 +510,10 @@ void Reasoning::CNF()
                 }
                 CNFstr.push_back(')');
                 count++;
+            }
+            if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n')
+            {
+                CNFstr.push_back('\n');
             }
         }
     }
@@ -551,6 +559,10 @@ void Reasoning::DNF()
                 DNFstr.push_back('v');
                 count++;
             }
+            if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n')
+            {
+                DNFstr.push_back('\n');
+            }
         }
     }
     else if (mode == 2)
@@ -571,6 +583,10 @@ void Reasoning::DNF()
                 }
                 DNFstr.push_back('+');
                 count++;
+            }
+            if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n')
+            {
+                DNFstr.push_back('\n');
             }
         }
     }
