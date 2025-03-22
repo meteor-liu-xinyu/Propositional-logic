@@ -1,5 +1,6 @@
 #include "zhenzhibiao.h"
 #include <windows.h>
+#include <conio.h>
 
 int main()
 {
@@ -9,7 +10,7 @@ int main()
 
     reasoning.Run();
 
-    cout << "已退出" << endl;
-
-	return 0;
+    cout << "已退出,按任意键关闭程序" << endl;
+    _getch();
+    return 0;
 }
