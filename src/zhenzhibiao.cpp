@@ -49,10 +49,17 @@ void Reasoning::Input()
     cout << endl << "请输入命题公式：";
     cin >> input;
     cout << endl;
+    while (getchar() != '\n');
+
+    // if (input == "\n")
+    // {
+    //     cout << "输入为空" << endl;
+    //     while (getchar() != '\n');
+    //     Input();
+    // }
 
     if (input == "/end")
     {
-        while (getchar() != '\n');
         ifend = 1;
         return;
     }
@@ -122,7 +129,6 @@ void Reasoning::Input()
         mode = 1; // 默认
     }
     
-
     int count = 0;
 
     for (int i = 0; i < input.length(); i++)
@@ -188,9 +194,6 @@ void Reasoning::Input()
     // 在头尾添加括号
     input.insert(0, "(");
     input.insert(input.length(), ")");
-
-    while (getchar() != '\n'); // 清空缓冲区
-
 }
 
 void Reasoning::FindArg()
@@ -488,11 +491,15 @@ void Reasoning::MakeTable()
         }
         int value = CalculateValue(i);
         Value.push_back(value);
-        if (initialinput.size() >= 10)
+        if (initialinput.size() >= 15)
         {
             cout << "\t";
         }
-        cout << value << endl;
+        else if (initialinput.size() >= 8)
+        {
+            cout << "  ";
+        }
+        cout << "  " << value << endl;
     }
 
 }
@@ -672,6 +679,8 @@ void Reasoning::DNF()
 
 void Reasoning::PrintNF()
 {
+    CNF(); // 生成CNF
+    DNF(); // 生成DNF
     if (CNFstr.size() == 0 && DNFstr.size() == 0)
     {
         return;
@@ -683,18 +692,6 @@ void Reasoning::PrintNF()
     cout << DNFstr << endl;
     cout << DNFmstr << endl;
 
-}
-
-int Reasoning::CheckEnd()
-{
-    if (ifend == 1)
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
 }
 
 void Reasoning::Run()
@@ -711,13 +708,11 @@ void Reasoning::Run()
     {
         Init();
         Input();
-        if (CheckEnd() == 1)
+        if (ifend == 1)
         {
             break;
         }
         MakeTable(); // 生成真值表
-        CNF(); // 生成CNF
-        DNF(); // 生成DNF
         PrintNF(); // 打印结果
     }
 }

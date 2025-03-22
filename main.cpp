@@ -9,8 +9,7 @@ int main()
 
     reasoning.Run();
 
-    while (getchar() != '\n');
-    getchar();
-    
+    cout << "已退出" << endl;
+
 	return 0;
 }
