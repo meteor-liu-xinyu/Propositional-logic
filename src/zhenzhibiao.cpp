@@ -49,10 +49,16 @@ void Reasoning::Input()
     cout << endl;
     while (getchar() != '\n');
 
-    if (input == "/end")
+    if (input == "/end" || input == "/END" || input == "/exit" || input == "/EXIT")
     {
         ifend = 1;
         return;
+    }
+    else if (input == "/clear" || input == "/CLEAR")
+    {
+        system("cls");
+        cout << "否定:~、合取:^、析取:v/否定:`或'或‘或’、合取:*、析取:+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
+        Input();
     }
     for (int i = 0; i < input.length(); i++) // 将中文括号转换为英文括号
     {
@@ -165,7 +171,7 @@ void Reasoning::Input()
             {
                 input[i] = 'v';
             }
-            else if ((i == 0 && input[i] == '~') || (input[i] == '`' && !(input[i-1] >= 'A' && input[i-1] <= 'Z')))
+            else if ((i == 0 && input[i] == '`') || (input[i] == '`' && (!(input[i-1] >= 'A' && input[i-1] <= 'Z')) && input[i-1] != ')'))
             {
                 cout << "输入有误" << endl;
                 while (getchar() != '\n');
@@ -463,6 +469,14 @@ int Reasoning::CalculateValue(int n)
     }
 }
 
+void Reasoning::Cal()
+{
+    for (int i = 0; i < pow(2, Argnum); i++)
+    {
+        Value.push_back(CalculateValue(i));
+    }
+}
+
 void Reasoning::MakeTable()
 {
     cout << endl << "真值表:" << endl;
@@ -480,8 +494,6 @@ void Reasoning::MakeTable()
         {
             cout << bin[j] << "\t";
         }
-        int value = CalculateValue(i);
-        Value.push_back(value);
         if (initialinput.size() >= 15)
         {
             cout << "\t";
@@ -490,7 +502,7 @@ void Reasoning::MakeTable()
         {
             cout << "  ";
         }
-        cout << "  " << value << endl;
+        cout << "  " << Value[i] << endl;
     }
 
 }
@@ -687,14 +699,16 @@ void Reasoning::PrintNF()
 
 void Reasoning::Run()
 {
-    cout << "否定:~、合取:^、析取:v/否定:`或'或‘或’、合取:*、析取:+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
-    cout << "命题变元不区分大小写,只能为A-Z除V外的字母,支持中文括号,输入/end结束" << endl;
+    cout << "否定:~、合取:^、析取:v/否定:`(兼容'或‘或’)、合取:*、析取:+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
+    cout << "命题变元不区分大小写,只能为A-Z除V外的字母,支持中文括号,输入/end或/exit结束,/clear清空页面" << endl;
     cout << "支持离散数学和数字逻辑两种符号体系，请勿混用" << endl;
-    cout << "示例:" << endl;
-    cout << "输入:~(~A^Bv(A^~BVc)^A>C)>(Cv(A<B))" << endl;
-    cout << "输入:(A`(B+C`))`(A+B`+C)(A`B`C`)`" << endl;
-    cout << "输入:A`B+B(C+D)或A`*B+B*(C+D)" << endl;
+    cout << "示例输入:~(~A^Bv(A^~BVc)^A>C)>(Cv(A<B))" << endl;
+    cout << "示例输入:(A`(B+C`))`(A+B`+C) 或 (A`(B+C`))`*(A+B`+C)" << endl;
 
+    int outmode;
+    cout << "模式选择(求真值表-1,求主合取、析取范式-2,都要-3):";
+    cin >> outmode;
+    while (getchar() != '\n');
     while (1)
     {
         Init();
@@ -703,8 +717,15 @@ void Reasoning::Run()
         {
             break;
         }
-        MakeTable(); // 生成真值表
-        PrintNF(); // 打印结果
+        Cal();
+        if (outmode == 1 || outmode == 3)
+        {
+            MakeTable(); // 生成真值表
+        }
+        if (outmode == 2 || outmode == 3)
+        {
+            PrintNF(); // 打印结果
+        }
     }
 }
 

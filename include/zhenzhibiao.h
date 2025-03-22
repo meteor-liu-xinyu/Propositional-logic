@@ -31,6 +31,7 @@ public:
     
     int CalculateValue(int n);
     void DToB(int n, int bin[]);
+    void Cal();
 
     char Not(char A);
     char And(char A, char B);
