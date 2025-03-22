@@ -1,11 +1,13 @@
-#include "runwindow.h"
+#include "zhenzhibiao.h"
 #include <windows.h>
 
 int main()
 {
     SetConsoleOutputCP(65001);
 
-    RunWindow Main;
+    Reasoning reasoning;
+
+    reasoning.Run();
 
     while (getchar() != '\n');
     getchar();

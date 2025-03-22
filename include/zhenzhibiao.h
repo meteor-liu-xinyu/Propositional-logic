@@ -23,6 +23,7 @@ private:
 public:
     Reasoning();
     ~Reasoning();
+    void Init();
     void Input();
     void FindArg();
     int FindLeft(string temp);
@@ -45,6 +46,8 @@ public:
     void DNF(); // 主析取范式
     void PrintNF();
     int CheckEnd();
+
+    void Run();
 
 };
 
