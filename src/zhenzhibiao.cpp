@@ -1,6 +1,18 @@
 #include "zhenzhibiao.h"
 #include <math.h>
 
+string lbstr = "（";
+string rbstr = "）";
+char lb0 = lbstr[0];
+char lb1 = lbstr[1];
+char rb0 = rbstr[0];
+char rb1 = rbstr[1];
+string lcotstr = "‘";
+string rcotstr = "’";
+char lcot0 = lcotstr[0];
+char lcot1 = lcotstr[1];
+char rcot0 = rcotstr[0];
+char rcot1 = rcotstr[1];
 
 Reasoning::Reasoning()
 {
@@ -32,31 +44,10 @@ void Reasoning::Init()
 
 void Reasoning::Input()
 {
-    string lbstr = "（";
-    string rbstr = "）";
-    char lb0 = lbstr[0];
-    char lb1 = lbstr[1];
-    char rb0 = rbstr[0];
-    char rb1 = rbstr[1];
-    string lcotstr = "‘";
-    string rcotstr = "’";
-    char lcot0 = lcotstr[0];
-    char lcot1 = lcotstr[1];
-    char rcot0 = rcotstr[0];
-    char rcot1 = rcotstr[1];
-
-
     cout << endl << "请输入命题公式：";
     cin >> input;
     cout << endl;
     while (getchar() != '\n');
-
-    // if (input == "\n")
-    // {
-    //     cout << "输入为空" << endl;
-    //     while (getchar() != '\n');
-    //     Input();
-    // }
 
     if (input == "/end")
     {
