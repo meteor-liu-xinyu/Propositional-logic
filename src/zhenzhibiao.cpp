@@ -142,6 +142,12 @@ void Reasoning::Input()
         else if (input[i] == ')')
         {
             count--;
+            if (count < 0)
+            {
+                cout << "括号不匹配" << endl;
+                while (getchar() != '\n');
+                Input();
+            }
         }
         else if (input[i] == 'V') // 将大写字母V转换为小写字母v
         {
