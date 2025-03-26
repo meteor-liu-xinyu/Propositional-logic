@@ -711,10 +711,10 @@ void Reasoning::Run()
     cout << "示例输入:~(~A^Bv(A^~BVc)^A>C)>(Cv(A<B))" << endl;
     cout << "示例输入:(A`(B+C`))`(A+B`+C) 或 (A`(B+C`))`*(A+B`+C)" << endl;
 
-    int outmode;
-    cout << "模式选择(求真值表-1,求主合取、析取范式-2,都要-3):";
-    cin >> outmode;
-    while (getchar() != '\n');
+    int outmode = 3;
+    // cout << "模式选择(求真值表-1,求主合取、析取范式-2,都要-3):";
+    // cin >> outmode;
+    // while (getchar() != '\n');
     while (1)
     {
         Init();
