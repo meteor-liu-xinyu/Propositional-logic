@@ -16,10 +16,24 @@ char lcot1 = lcotstr[1];
 char rcot0 = rcotstr[0];
 char rcot1 = rcotstr[1];
 
+string dotstr = "，";
+char dot0 = dotstr[0];
+char dot1 = dotstr[1];
+string prodstr = "∏";
+char prod0 = prodstr[0];
+char prod1 = prodstr[1];
+string sumstr = "∑";
+char sum0 = sumstr[0];
+char sum1 = sumstr[1];
+
 Reasoning::Reasoning()
 {
     mode = 0;
     ifend = false;
+    openzhenzhibiao = 1;
+    openNF = 1;
+    openkanuo = 1;
+    openkanuohuajian = 1;
     return;
 }
 
