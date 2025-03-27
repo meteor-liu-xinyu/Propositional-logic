@@ -50,9 +50,8 @@ void Reasoning::Init()
 void Reasoning::Input()
 {
     cout << endl << "请输入：";
-    cin >> input;
+    getline(cin, input);
     cout << endl;
-    while (getchar() != '\n');
 
     if (input == "/end" || input == "/END" || input == "/exit" || input == "/EXIT")
     {
