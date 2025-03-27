@@ -17,7 +17,7 @@ char rcot1 = rcotstr[1];
 Reasoning::Reasoning()
 {
     mode = 0;
-    ifend = 0;
+    ifend = false;
     return;
 }
 
@@ -40,24 +40,31 @@ void Reasoning::Init()
     CNFMstr = "";
     DNFmstr = "";
     mode = 0;
+    intertimes = 0;
+    endinter = false;
 }
 
 void Reasoning::Input()
 {
-    cout << endl << "请输入命题公式：";
+    cout << endl << "请输入：";
     cin >> input;
     cout << endl;
     while (getchar() != '\n');
 
     if (input == "/end" || input == "/END" || input == "/exit" || input == "/EXIT")
     {
-        ifend = 1;
+        ifend = true;
         return;
     }
     else if (input == "/clear" || input == "/CLEAR")
     {
         system("cls");
         cout << "否定:~、合取:^、析取:v/否定:`或'或‘或’、合取:*、析取:+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
+        Input();
+    }
+    else if (input == "/setting" || input == "/SETTING")
+    {
+        Setting();
         Input();
     }
     for (int i = 0; i < input.length(); i++) // 将中文括号转换为英文括号
@@ -239,7 +246,7 @@ void Reasoning::FindArg()
     }
 }
 
-int Reasoning::FindRight(string temp)
+int Reasoning::FindRight(const string& temp)
 {
     int i = 0;
     while (temp[i] != ')')
@@ -249,7 +256,7 @@ int Reasoning::FindRight(string temp)
     return i;
 }
 
-int Reasoning::FindLeft(string temp)
+int Reasoning::FindLeft(const string& temp)
 {
     int i = FindRight(temp);
     while (temp[i] != '(')
@@ -480,6 +487,7 @@ void Reasoning::Cal()
     for (int i = 0; i < pow(2, Argnum); i++)
     {
         Value.push_back(CalculateValue(i));
+        PI.push_back(i);
     }
 }
 
@@ -561,7 +569,10 @@ void Reasoning::CNF()
         {
             if (Value[i] == 0)
             {
-                CNFMstr.push_back('M');
+                if (CNFMstr.size() == 0)
+                {
+                    CNFMstr += " \\prod M(";
+                }
                 string num = to_string(i);
                 CNFMstr.append(num);
                 CNFstr.push_back('(');
@@ -580,7 +591,7 @@ void Reasoning::CNF()
                     }
                 }
                 CNFstr.push_back(')');
-                CNFMstr.push_back('*');
+                CNFMstr.push_back(',');
                 count++;
             }
             if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n' && count != 0)
@@ -588,6 +599,7 @@ void Reasoning::CNF()
                 CNFstr.push_back('\n');
             }
         }
+        CNFMstr.push_back(')');
     }
     if (count == 0) // 为永真式
     {
@@ -596,10 +608,6 @@ void Reasoning::CNF()
     else if (mode == 1)
     {
         CNFstr.pop_back();
-        CNFMstr.pop_back();
-    }
-    else if (mode == 2)
-    {
         CNFMstr.pop_back();
     }
 }
@@ -652,7 +660,10 @@ void Reasoning::DNF()
         {
             if (Value[i] == 1)
             {
-                DNFmstr.push_back('m');
+                if (DNFmstr.size() == 0)
+                {
+                    DNFmstr += " \\sum m(";
+                }
                 string num = to_string(i);
                 DNFmstr.append(num);
                 int bin[Argnum] = {0};
@@ -666,7 +677,7 @@ void Reasoning::DNF()
                     }
                 }
                 DNFstr.push_back('+');
-                DNFmstr.push_back('+');
+                DNFmstr.push_back(',');
                 count++;
             }
             if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n' && count != 0)
@@ -674,15 +685,20 @@ void Reasoning::DNF()
                 DNFstr.push_back('\n');
             }
         }
+        DNFmstr.push_back(')');
     }
     if (count == 0) // 为永假式
     {
         DNFstr.push_back('F');
     }
-    else
+    else if (mode == 1)
+    {
+        DNFmstr.pop_back();
+        DNFstr.pop_back();
+    }
+    else if (mode == 2)
     {
         DNFstr.pop_back();
-        DNFmstr.pop_back();
     }
 }
 
@@ -703,36 +719,211 @@ void Reasoning::PrintNF()
 
 }
 
+void Reasoning::Setting() // 设置输出选项
+{
+    cout << "是否输出真值表(1/0):";
+    cin >> openzhenzhibiao;
+    if (openzhenzhibiao != 0 && openzhenzhibiao != 1)
+    {
+        cout << "输入错误" << endl;
+        while (getchar() != '\n');
+        Setting();
+    }
+    cout << "是否输出主合取+析取范式(1/0):";
+    cin >> openNF;
+    if (openNF != 0 && openNF != 1)
+    {
+        cout << "输入错误" << endl;
+        while (getchar() != '\n');
+        Setting();
+    }
+    cout << "是否输出卡诺图(1/0):";
+    cin >> openkanuo;
+    if (openkanuo != 0 && openkanuo != 1)
+    {
+        cout << "输入错误" << endl;
+        while (getchar() != '\n');
+        Setting();
+    }
+    cout << "是否输出卡诺图化简(1/0):";
+    cin >> openkanuohuajian;
+    if (openkanuohuajian != 0 && openkanuohuajian != 1)
+    {
+        cout << "输入错误" << endl;
+        while (getchar() != '\n');
+        Setting();
+    }
+}
+
 void Reasoning::Run()
 {
     cout << "否定:~、合取:^、析取:v/否定:`(兼容'或‘或’)、合取:*、析取:+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
-    cout << "命题变元不区分大小写,只能为A-Z除V外的字母,支持中文括号,输入/end或/exit结束,/clear清空页面" << endl;
+    cout << "命题变元不区分大小写,只能为A-Z除V外的字母,支持中文括号" << endl;
+    cout << "输入/end或/exit结束,/setting设置输出选项,/clear清空页面" << endl;
     cout << "支持离散数学和数字逻辑两种符号体系，请勿混用" << endl;
     cout << "示例输入:~(~A^Bv(A^~BVc)^A>C)>(Cv(A<B))" << endl;
     cout << "示例输入:(A`(B+C`))`(A+B`+C) 或 (A`(B+C`))`*(A+B`+C)" << endl;
 
-    int outmode = 3;
-    // cout << "模式选择(求真值表-1,求主合取、析取范式-2,都要-3):";
-    // cin >> outmode;
-    // while (getchar() != '\n');
     while (1)
     {
         Init();
         Input();
-        if (ifend == 1)
+        if (ifend)
         {
             break;
         }
         Cal();
-        if (outmode == 1 || outmode == 3)
+        if (openzhenzhibiao == 1)
         {
             MakeTable(); // 生成真值表
         }
-        if (outmode == 2 || outmode == 3)
+        if (openNF == 1)
         {
             PrintNF(); // 打印结果
         }
+        if (openkanuo == 1)
+        {
+            // MakeKanuo(); // 生成卡诺图
+        }
+        if (openkanuohuajian == 1)
+        {
+            QM(); // 生成卡诺图化简
+        }
     }
+}
+
+bool Reasoning::IfNear(const string& a, const string& b)
+{
+    int diffCount = 0;
+    for (int i = 0; i < a.size(); ++i)
+    {
+        if (a[i] != b[i])
+        {
+            diffCount++;
+        }
+        if (diffCount > 1)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+string Reasoning::Combine(const string& a, const string& b)
+{
+    string combined = a;
+    for (int i = 0; i < a.size(); ++i)
+    {
+        if (a[i] != b[i])
+        {
+            combined[i] = '-';
+        }
+    }
+    return combined;
+}
+
+int Reasoning::CountDashes(const string& str)
+{
+    int count = 0;
+    for (int i = 0; i < str.size(); ++i)
+    {
+        if (str[i] == '-')
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+void Reasoning::QM()
+{
+    // 将PI转为二进制字符串
+    vector<string> binPI;
+    for (int i = 0; i < PI.size(); ++i)
+    {
+        string binstr;
+        int bin[Argnum] = {0};
+        DToB(PI[i], bin);
+        for (int j = 0; j < Argnum; ++j)
+        {
+            binstr += to_string(bin[Argnum-j-1]);
+        }
+        binPI.push_back(binstr);
+    }
+
+    vector<string> groups = binPI; // 存储合并后的项
+
+    while (!endinter && intertimes <= Argnum)
+    {
+        groups = QMCombine(groups); // 合并项
+    }
+
+    for (const auto& group : groups)
+    {
+        for (int i = 0; i < group.size(); ++i)
+        {
+            if (group[i] == '1')
+            {
+                kanuo.push_back(ArgName[i]);
+            }
+            else if (group[i] == '0')
+            {
+                kanuo.push_back(ArgName[i] + '`');
+            }
+        }
+        kanuo.push_back('+');
+    }
+
+    cout << endl << "卡诺图化简结果: " << kanuo << endl;
+}
+
+vector<string> Reasoning::QMCombine(vector<string> groups)
+{
+    endinter = true; // 标记是否已经不能再合并
+    vector<string> nextgroups;
+    int groupsize = groups.size();
+    vector<bool> used(groupsize, false); // 标记是否被合并
+
+    for (int i = 0; i < groupsize; i++)
+    {
+        if (used[i])
+            continue; // 跳过已经被合并的项
+        for (int j = i + 1; j < groupsize; j++)
+        {
+            if (used[j])
+                continue; // 跳过已经被合并的项
+            if (IfNear(groups[i], groups[j]))
+            {
+                string combined = Combine(groups[i], groups[j]);
+                if (CountDashes(combined) == intertimes+1)
+                {
+                    endinter = false; // 如果有新的合并，则继续合并
+                    // 检查是否已经存在相同的合并项
+                    for (const auto& nextgroup : nextgroups)
+                    {
+                        if (nextgroup == combined)
+                        {
+                            used[i] = true;
+                            used[j] = true;
+                            continue;
+                        }
+                    }
+                    nextgroups.push_back(combined);
+                }
+            }
+        }
+    }
+    // 将未被合并的项添加到结果中
+    for (int i = 0; i < groupsize; i++)
+    {
+        if (!used[i])
+        {
+            nextgroups.push_back(groups[i]);
+        }
+    }
+
+    intertimes++;
+    return nextgroups;
 }
 
 Reasoning::~Reasoning()

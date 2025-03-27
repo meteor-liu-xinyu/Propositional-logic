@@ -17,8 +17,18 @@ private:
     string DNFstr;
     string CNFMstr;
     string DNFmstr;
+    string kanuo;
     int mode;
-    int ifend;
+    bool ifend;
+
+    int openzhenzhibiao = 1;
+    int openNF = 1;
+    int openkanuo = 1;
+    int openkanuohuajian = 1;
+
+    vector<int> PI;
+    int intertimes;
+    bool endinter;
     
 public:
     Reasoning();
@@ -26,8 +36,8 @@ public:
     void Init();
     void Input();
     void FindArg();
-    int FindLeft(string temp);
-    int FindRight(string temp);
+    int FindLeft(const string& temp);
+    int FindRight(const string& temp);
     
     int CalculateValue(int n);
     void DToB(int n, int bin[]);
@@ -47,6 +57,13 @@ public:
     void DNF(); // 主析取范式
     void PrintNF();
 
+    bool IfNear(const string& a, const string& b);
+    string Combine(const string& a, const string& b);
+    int CountDashes(const string& str);
+    void QM();
+    vector<string> QMCombine(vector<string> groups);
+
+    void Setting();
     void Run();
 
 };
