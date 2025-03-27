@@ -5,8 +5,10 @@ string lbstr = "（";
 string rbstr = "）";
 char lb0 = lbstr[0];
 char lb1 = lbstr[1];
+char lb2 = lbstr[2];
 char rb0 = rbstr[0];
 char rb1 = rbstr[1];
+char rb2 = rbstr[2];
 string lcotstr = "‘";
 string rcotstr = "’";
 char lcot0 = lcotstr[0];
@@ -70,13 +72,13 @@ void Reasoning::Input()
     }
     for (int i = 0; i < input.length(); i++) // 将中文括号转换为英文括号
     {
-        if (i <= input.length() - 3 && input[i] == lb0 && input[i + 1] == lb1)
+        if (i <= input.length() - 3 && input[i] == lb0 && input[i + 1] == lb1 && input[i+2] == lb2)
         {
             input.erase(i, 3);
             input.insert(i, "(");
             i--;
         }
-        else if (i >= 2 && input[i - 2] == rb0 && input[i - 1] == rb1)
+        else if (i >= 2 && input[i - 2] == rb0 && input[i - 1] == rb1 && input[i] == rb2)
         {
             input.erase(i - 2, 3);
             input.insert(i - 2, ")");
@@ -525,6 +527,21 @@ void Reasoning::CNF()
     {
         return;
     }
+    bool alltrue = true;
+    for (const auto& i : Value)
+    {
+        if (i == 0)
+        {
+            alltrue = false;
+            break;
+        }
+    }
+    if (alltrue)
+    {
+        CNFstr = 'T';
+        CNFMstr = 'T';
+        return;
+    }
     int count = 0;
     if (mode == 1)
     {
@@ -532,9 +549,13 @@ void Reasoning::CNF()
         {
             if (Value[i] == 0)
             {
-                CNFMstr.push_back('M');
+                if (CNFMstr.size() == 0)
+                {
+                    CNFMstr += " ^ M(";
+                }
                 string num = to_string(i);
                 CNFMstr.append(num);
+                CNFMstr.push_back(',');
                 CNFstr.push_back('(');
                 int bin[Argnum] = {0};
                 DToB(i, bin);
@@ -552,7 +573,6 @@ void Reasoning::CNF()
                 }
                 CNFstr.push_back(')');
                 CNFstr.push_back('^');
-                CNFMstr.push_back('^');
                 count++;
             }
             if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n' && count != 0)
@@ -560,6 +580,8 @@ void Reasoning::CNF()
                 CNFstr.push_back('\n');
             }
         }
+        CNFMstr.pop_back();
+        CNFMstr.push_back(')');
     }
     else if (mode == 2)
     {
@@ -573,6 +595,7 @@ void Reasoning::CNF()
                 }
                 string num = to_string(i);
                 CNFMstr.append(num);
+                CNFMstr.push_back(',');
                 CNFstr.push_back('(');
                 int bin[Argnum] = {0};
                 DToB(i, bin);
@@ -589,7 +612,6 @@ void Reasoning::CNF()
                     }
                 }
                 CNFstr.push_back(')');
-                CNFMstr.push_back(',');
                 count++;
             }
             if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n' && count != 0)
@@ -597,20 +619,12 @@ void Reasoning::CNF()
                 CNFstr.push_back('\n');
             }
         }
-    }
-    if (count == 0) // 为永真式
-    {
-        CNFstr.push_back('T');
-    }
-    else if (mode == 1)
-    {
-        CNFstr.pop_back();
-        CNFMstr.pop_back();
-    }
-    else if (mode == 2)
-    {
         CNFMstr.pop_back();
         CNFMstr.push_back(')');
+    }
+    if (mode == 1)
+    {
+        CNFstr.pop_back();
     }
 }
 
@@ -620,6 +634,21 @@ void Reasoning::DNF()
     {
         return;
     }
+    bool allfalse = true;
+    for (const auto& i : Value)
+    {
+        if (i == 1)
+        {
+            allfalse = false;
+            break;
+        }
+    }
+    if (allfalse)
+    {
+        DNFstr = 'F';
+        DNFmstr = 'F';
+        return;
+    }
     int count = 0;
     if (mode == 1)
     {
@@ -627,9 +656,13 @@ void Reasoning::DNF()
         {
             if (Value[i] == 1)
             {
-                DNFmstr.push_back('m');
+                if (DNFmstr.size() == 0)
+                {
+                    DNFmstr += " v m(";
+                }
                 string num = to_string(i);
                 DNFmstr.append(num);
+                DNFmstr.push_back(',');
                 DNFstr.push_back('(');
                 int bin[Argnum] = {0};
                 DToB(i, bin);
@@ -647,7 +680,6 @@ void Reasoning::DNF()
                 }
                 DNFstr.push_back(')');
                 DNFstr.push_back('v');
-                DNFmstr.push_back('v');
                 count++;
             }
             if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n' && count != 0)
@@ -655,6 +687,8 @@ void Reasoning::DNF()
                 DNFstr.push_back('\n');
             }
         }
+        DNFmstr.pop_back();
+        DNFmstr.push_back(')');
     }
     else if (mode == 2)
     {
@@ -668,6 +702,7 @@ void Reasoning::DNF()
                 }
                 string num = to_string(i);
                 DNFmstr.append(num);
+                DNFmstr.push_back(',');
                 int bin[Argnum] = {0};
                 DToB(i, bin);
                 for (int j = 0; j < Argnum; j++)
@@ -679,7 +714,6 @@ void Reasoning::DNF()
                     }
                 }
                 DNFstr.push_back('+');
-                DNFmstr.push_back(',');
                 count++;
             }
             if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n' && count != 0)
@@ -687,16 +721,10 @@ void Reasoning::DNF()
                 DNFstr.push_back('\n');
             }
         }
-    }
-    if (count == 0) // 为永假式
-    {
-        DNFstr.push_back('F');
-    }
-    else
-    {
         DNFmstr.pop_back();
-        DNFstr.pop_back();
+        DNFmstr.push_back(')');
     }
+    DNFstr.pop_back();
 }
 
 void Reasoning::PrintNF()
@@ -847,6 +875,43 @@ int Reasoning::CountDashes(const string& str)
 
 void Reasoning::QM()
 {
+    if (DNFstr == "F")
+    {
+        cout << endl << "卡诺图化简结果: 该命题为重言式,无需化简" << endl;
+        return;
+    }
+    else if (CNFstr == "T")
+    {
+        cout << endl << "卡诺图化简结果: 该命题为永真式,无需化简" << endl;
+        return;
+    }
+    else if (DNFstr.size() == 0)
+    {
+        bool alltrue = true;
+        bool allfalse = true;
+        for (const auto& i : Value)
+        {
+            if (i == 0)
+            {
+                alltrue = false;
+            }
+            if (i == 1)
+            {
+                allfalse = false;
+            }
+        }
+        if (alltrue)
+        {
+            cout << endl << "卡诺图化简结果: 该命题为永真式,无需化简" << endl;
+            return;
+        }
+        if (allfalse)
+        {
+            cout << endl << "卡诺图化简结果: 该命题为永假式,无需化简" << endl;
+            return;
+        }
+    }
+    
     // 将PI转为二进制字符串
     vector<vector<string>> groups;
     for (int i = 0; i < Argnum+1; i++)
