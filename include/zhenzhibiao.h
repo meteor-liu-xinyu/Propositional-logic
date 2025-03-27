@@ -56,6 +56,8 @@ public:
     void DNF(); // 主析取范式
     void PrintNF();
 
+    void MakeKanuo();
+
     int Countone(string terms);
     bool IfNear(const string& a, const string& b);
     string Combine(const string& a, const string& b);

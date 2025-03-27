@@ -808,11 +808,66 @@ void Reasoning::Run()
         }
         if (openkanuo == 1)
         {
-            // MakeKanuo(); // 生成卡诺图
+            MakeKanuo(); // 生成卡诺图
         }
         if (openkanuohuajian == 1)
         {
             QM(); // 生成卡诺图化简
+        }
+    }
+}
+
+void Reasoning::MakeKanuo()
+{
+    if (Argnum != 3 && Argnum != 4)
+    {
+        cout << "不支持" << Argnum << "个变元的卡诺图" << endl;
+    }
+    
+    cout << endl << "卡诺图:" << endl;
+    if (Argnum == 3)
+    {
+        cout << ArgName[0] << ArgName[1] << "\\" << ArgName[2] << "\t 0 \t 1" << endl;
+        vector<int> temp = {0,2,6,4};
+        vector<string> tempbin = {"00","01","11","10"};
+        for (int i = 0; i < 4; i++)
+        {
+            cout << tempbin[i] << "  \t";
+            for (int j = temp[i]; i < temp[i]+2; j++)
+            {
+                if (Value[j] == 1)
+                {
+                    cout << " 1 \t";
+                }
+                else
+                {
+                    cout << " 0 \t";
+                }
+            }
+            cout << endl;
+        }
+    }
+    else if (Argnum == 4)
+    {
+        cout << ArgName[0] << ArgName[1] << "\\" << ArgName[2] << ArgName[3] << "\t 00 \t 01 \t 11 \t 10" << endl;
+        vector<int> temp1 = {0,4,12,8};
+        vector<int> temp2 = {0,1,3,2};
+        vector<string> tempbin = {"00","01","11","10"};
+        for (int i = 0; i < 4; i++)
+        {
+            cout << tempbin[i] << "  \t";
+            for (int j = 0; j < 4; j++)
+            {
+                if (Value[temp1[i]+temp2[j]] == 1)
+                {
+                    cout << " 1 \t";
+                }
+                else
+                {
+                    cout << " 0 \t";
+                }
+            }
+            cout << endl;
         }
     }
 }
