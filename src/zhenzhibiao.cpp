@@ -40,23 +40,17 @@ Reasoning::Reasoning()
 void Reasoning::Init()
 {
     // 重新初始化
-    input = "";
-    initialinput = "";
-    while (ArgName.size() != 0)
-    {
-        ArgName.pop_back();
-    }
+    input.clear();
+    initialinput.clear();
+    ArgName.clear();
     Argnum = 0;
-    while (Value.size() != 0)
-    {
-        Value.pop_back();
-    }
-    CNFstr = "";
-    DNFstr = "";
-    CNFMstr = "";
-    DNFmstr = "";
-    kanuo = "";
-    PI = {};
+    Value.clear();
+    CNFstr.clear();
+    DNFstr.clear();
+    CNFMstr.clear();
+    DNFmstr.clear();
+    kanuo.clear();
+    PI.clear();
     mode = 0;
     endinter = false;
 }
@@ -841,14 +835,15 @@ void Reasoning::MakeKanuo()
     if (Argnum == 3)
     {
         cout << ArgName[0] << ArgName[1] << "\\" << ArgName[2] << "\t 0 \t 1" << endl;
-        vector<int> temp = {0,2,6,4};
+        vector<int> temp1 = {0,2,6,4};
+        vector<int> temp2 = {0,1};
         vector<string> tempbin = {"00","01","11","10"};
         for (int i = 0; i < 4; i++)
         {
             cout << tempbin[i] << "  \t";
-            for (int j = temp[i]; i < temp[i]+2; j++)
+            for (int j = 0; j < 2; j++)
             {
-                if (Value[j] == 1)
+                if (Value[temp1[i]+temp2[j]] == 1)
                 {
                     cout << " 1 \t";
                 }
