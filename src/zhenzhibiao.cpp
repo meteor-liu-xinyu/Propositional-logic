@@ -599,7 +599,6 @@ void Reasoning::CNF()
                 CNFstr.push_back('\n');
             }
         }
-        CNFMstr.push_back(')');
     }
     if (count == 0) // 为永真式
     {
@@ -609,6 +608,11 @@ void Reasoning::CNF()
     {
         CNFstr.pop_back();
         CNFMstr.pop_back();
+    }
+    else if (mode == 2)
+    {
+        CNFMstr.pop_back();
+        CNFMstr.push_back(')');
     }
 }
 
@@ -685,19 +689,15 @@ void Reasoning::DNF()
                 DNFstr.push_back('\n');
             }
         }
-        DNFmstr.push_back(')');
     }
     if (count == 0) // 为永假式
     {
         DNFstr.push_back('F');
     }
-    else if (mode == 1)
+    else
     {
         DNFmstr.pop_back();
-        DNFstr.pop_back();
-    }
-    else if (mode == 2)
-    {
+        DNFmstr.push_back(')');
         DNFstr.pop_back();
     }
 }
@@ -857,6 +857,13 @@ void Reasoning::QM()
     {
         groups = QMCombine(groups); // 合并项
     }
+
+    cout << "groups:";
+    for (const auto& group : groups)
+    {
+        cout << group << "\t";
+    }
+    cout << endl;
 
     for (const auto& group : groups)
     {
