@@ -27,7 +27,6 @@ private:
     int openkanuohuajian = 1;
 
     vector<int> PI;
-    int intertimes;
     bool endinter;
     
 public:
@@ -57,11 +56,12 @@ public:
     void DNF(); // 主析取范式
     void PrintNF();
 
+    int Countone(string terms);
     bool IfNear(const string& a, const string& b);
     string Combine(const string& a, const string& b);
     int CountDashes(const string& str);
     void QM();
-    vector<string> QMCombine(vector<string> groups);
+    vector<vector<string>> QMCombine(const vector<vector<string>>& groups);
 
     void Setting();
     void Run();

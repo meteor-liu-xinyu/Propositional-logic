@@ -39,8 +39,9 @@ void Reasoning::Init()
     DNFstr = "";
     CNFMstr = "";
     DNFmstr = "";
+    kanuo = "";
+    PI = {};
     mode = 0;
-    intertimes = 0;
     endinter = false;
 }
 
@@ -110,7 +111,6 @@ void Reasoning::Input()
             else
             {
                 cout << "符号混用" << endl;
-                while (getchar() != '\n');
                 Input();
             }
         }
@@ -123,7 +123,6 @@ void Reasoning::Input()
             else
             {
                 cout << "符号混用" << endl;
-                while (getchar() != '\n');
                 Input();
             }
         }
@@ -152,7 +151,6 @@ void Reasoning::Input()
             if (count < 0)
             {
                 cout << "括号不匹配" << endl;
-                while (getchar() != '\n');
                 Input();
             }
         }
@@ -169,7 +167,6 @@ void Reasoning::Input()
     if (count != 0)
     {
         cout << "括号不匹配" << endl;
-        while (getchar() != '\n');
         Input();
     }
     for (int i = 0; i < input.length(); i++) // 将符号转换为统一的符号
@@ -187,14 +184,12 @@ void Reasoning::Input()
             else if ((i == 0 && input[i] == '`') || (input[i] == '`' && (!(input[i-1] >= 'A' && input[i-1] <= 'Z')) && input[i-1] != ')'))
             {
                 cout << "输入有误" << endl;
-                while (getchar() != '\n');
                 Input();
             }
         }
         if (!(input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == '>' || input[i] == '<' || input[i] == '(' || input[i] == ')' || input[i] == '@' || input[i] == '[' || input[i] == ']' || input[i] == '`' || (input[i] >= 'A' && input[i] <= 'Z' && input[i] != 'V')))
         {
             cout << "输入有误" << endl;
-            while (getchar() != '\n');
             Input();
         }
     }
@@ -487,7 +482,10 @@ void Reasoning::Cal()
     for (int i = 0; i < pow(2, Argnum); i++)
     {
         Value.push_back(CalculateValue(i));
-        PI.push_back(i);
+        if (Value[i] == 1)
+        {
+            PI.push_back(i);
+        }
     }
 }
 
@@ -697,7 +695,6 @@ void Reasoning::DNF()
     else
     {
         DNFmstr.pop_back();
-        DNFmstr.push_back(')');
         DNFstr.pop_back();
     }
 }
@@ -792,10 +789,23 @@ void Reasoning::Run()
     }
 }
 
+int Reasoning::Countone(string terms)
+{
+    int count = 0;
+    for (const auto& term : terms)
+    {
+        if (term == '1')
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
 bool Reasoning::IfNear(const string& a, const string& b)
 {
     int diffCount = 0;
-    for (int i = 0; i < a.size(); ++i)
+    for (int i = 0; i < a.size(); i++)
     {
         if (a[i] != b[i])
         {
@@ -812,7 +822,7 @@ bool Reasoning::IfNear(const string& a, const string& b)
 string Reasoning::Combine(const string& a, const string& b)
 {
     string combined = a;
-    for (int i = 0; i < a.size(); ++i)
+    for (int i = 0; i < a.size(); i++)
     {
         if (a[i] != b[i])
         {
@@ -825,7 +835,7 @@ string Reasoning::Combine(const string& a, const string& b)
 int Reasoning::CountDashes(const string& str)
 {
     int count = 0;
-    for (int i = 0; i < str.size(); ++i)
+    for (int i = 0; i < str.size(); i++)
     {
         if (str[i] == '-')
         {
@@ -838,8 +848,12 @@ int Reasoning::CountDashes(const string& str)
 void Reasoning::QM()
 {
     // 将PI转为二进制字符串
-    vector<string> binPI;
-    for (int i = 0; i < PI.size(); ++i)
+    vector<vector<string>> groups;
+    for (int i = 0; i < Argnum+1; i++)
+    {
+        groups.push_back(vector<string>());
+    }
+    for (int i = 0; i < PI.size(); i++)
     {
         string binstr;
         int bin[Argnum] = {0};
@@ -848,88 +862,139 @@ void Reasoning::QM()
         {
             binstr += to_string(bin[Argnum-j-1]);
         }
-        binPI.push_back(binstr);
+        groups[Countone(binstr)].push_back(binstr);
     }
 
-    vector<string> groups = binPI; // 存储合并后的项
-
-    while (!endinter && intertimes <= Argnum)
+    while (!endinter)
     {
         groups = QMCombine(groups); // 合并项
     }
 
-    cout << "groups:";
+    vector<string> finalPI;
     for (const auto& group : groups)
     {
-        cout << group << "\t";
-    }
-    cout << endl;
-
-    for (const auto& group : groups)
-    {
-        for (int i = 0; i < group.size(); ++i)
+        for (const auto& term : group)
         {
-            if (group[i] == '1')
-            {
-                kanuo.push_back(ArgName[i]);
-            }
-            else if (group[i] == '0')
-            {
-                kanuo.push_back(ArgName[i] + '`');
-            }
+            finalPI.push_back(term);
         }
-        kanuo.push_back('+');
+    }
+
+    if (mode == 1)
+    {
+        for (const auto& term : finalPI)
+        {
+            kanuo.push_back('(');
+            for (int i = 0; i < term.size(); i++)
+            {
+                if (term[i] == '1')
+                {
+                    kanuo.push_back(ArgName[i]);
+                    kanuo.push_back('^');
+                }
+                else if (term[i] == '0')
+                {
+                    kanuo.push_back('~');
+                    kanuo.push_back(ArgName[i]);
+                    kanuo.push_back('^');
+                }
+            }
+            kanuo.pop_back();
+            kanuo.push_back(')');
+            kanuo.push_back('v');
+        }
+        kanuo.pop_back();
+    }
+    else if (mode == 2)
+    {
+        for (const auto& term : finalPI)
+        {
+            for (int i = 0; i < term.size(); i++)
+            {
+                if (term[i] == '1')
+                {
+                    kanuo.push_back(ArgName[i]);
+                }
+                else if (term[i] == '0')
+                {
+                    kanuo.push_back(ArgName[i]);
+                    kanuo.push_back('`');
+                }
+            }
+            kanuo.push_back('+');
+        }
+        kanuo.pop_back();
     }
 
     cout << endl << "卡诺图化简结果: " << kanuo << endl;
 }
 
-vector<string> Reasoning::QMCombine(vector<string> groups)
+vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups)
 {
     endinter = true; // 标记是否已经不能再合并
-    vector<string> nextgroups;
-    int groupsize = groups.size();
-    vector<bool> used(groupsize, false); // 标记是否被合并
-
-    for (int i = 0; i < groupsize; i++)
+    vector<vector<string>> nextgroups; // 存储合并后的项
+    for (int i = 0; i < Argnum+1; i++)
     {
-        if (used[i])
-            continue; // 跳过已经被合并的项
-        for (int j = i + 1; j < groupsize; j++)
+        nextgroups.push_back(vector<string>());
+    }
+    vector<vector<bool>> used(groups.size(), vector<bool>(groups.size(), false)); // 标记是否被合并
+
+    for (int i = 0; i < groups.size()-1; i++) // 两两遍历所有组
+    {
+        for (int j = 0; j < groups[i].size(); j++) // 遍历有i个1的组
         {
-            if (used[j])
-                continue; // 跳过已经被合并的项
-            if (IfNear(groups[i], groups[j]))
+            if (used[i][j])
             {
-                string combined = Combine(groups[i], groups[j]);
-                if (CountDashes(combined) == intertimes+1)
+                continue; // 跳过已经被合并的项
+            }
+            for (int k = 0; k < groups[i+1].size(); k++) // 遍历有i+1个1的组
+            {
+                if (used[i+1][k])
                 {
-                    endinter = false; // 如果有新的合并，则继续合并
-                    // 检查是否已经存在相同的合并项
-                    for (const auto& nextgroup : nextgroups)
+                    continue; // 跳过已经被合并的项
+                }
+                if (IfNear(groups[i][j], groups[i+1][k]))
+                {
+                    int dashesnum = min(CountDashes(groups[i][j]), CountDashes(groups[i+1][k]));
+                    string combined = Combine(groups[i][j], groups[i+1][k]);
+                    if (CountDashes(combined) == dashesnum+1)
                     {
-                        if (nextgroup == combined)
+                        int onenum = Countone(combined);
+                        endinter = false; // 如果有新的合并，则继续合并
+                        // 检查是否已经存在相同的合并项
+                        bool flag = false;
+                        for (const auto& nextgroup : nextgroups[onenum])
                         {
-                            used[i] = true;
-                            used[j] = true;
-                            continue;
+                            if (nextgroup == combined)
+                            {
+                                flag = true;
+                                break;
+                            }
                         }
+                        if (!flag)
+                        {
+                            nextgroups[onenum].push_back(combined);
+                        }
+                        used[i][j] = true;
+                        used[i+1][k] = true;
+                        break;
                     }
-                    nextgroups.push_back(combined);
                 }
             }
         }
     }
+
     // 将未被合并的项添加到结果中
-    for (int i = 0; i < groupsize; i++)
+    for (int i = 0; i < groups.size(); i++)
     {
-        if (!used[i])
+        for (int j = 0; j < groups[i].size(); j++)
         {
-            nextgroups.push_back(groups[i]);
+            if (!used[i][j])
+            {
+                nextgroups[Countone(groups[i][j])].push_back(groups[i][j]);
+            }
         }
     }
 
-    intertimes++;
     return nextgroups;
 }
 
