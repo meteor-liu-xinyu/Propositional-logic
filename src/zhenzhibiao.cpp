@@ -59,6 +59,8 @@ void Reasoning::Input()
     char sum1 = sumstr[1];
     char sum2 = sumstr[2];
 
+    Init(); // 初始化
+
     cout << endl << "请输入：";
     getline(cin, input);
     cout << endl;
@@ -967,7 +969,6 @@ void Reasoning::Run()
 
     while (1)
     {
-        Init();
         Input();
         if (ifend)
         {
