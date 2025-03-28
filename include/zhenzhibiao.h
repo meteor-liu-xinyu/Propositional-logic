@@ -8,26 +8,26 @@ using namespace std;
 class Reasoning
 {
 private:
-    string initialinput;
+    string initialinput; // 初始输入
     string input;
-    vector<char> ArgName;
-    int Argnum;
-    vector<int> Value;
-    string CNFstr;
-    string DNFstr;
-    string CNFMstr;
-    string DNFmstr;
-    string kanuo;
-    int mode;
-    bool ifend;
+    vector<char> ArgName; // 命题变元名
+    int Argnum; // 命题变元个数
+    vector<int> Value; // 真值
+    string CNFstr; // 主合取范式
+    string DNFstr; // 主析取范式
+    string CNFMstr; // 主合取范式
+    string DNFmstr; // 主析取范式
+    string kanuo; // 卡诺图化简结果
+    int mode; // 1: 离散数学符号体系 2: 数字逻辑符号体系 3: 连乘 4: 连加
+    bool ifend; // 是否结束
 
-    bool openzhenzhibiao;
-    bool openNF;
-    bool openkanuo;
-    bool openkanuohuajian;
+    bool openzhenzhibiao; // 是否输出真值表
+    bool openNF; // 是否输出主析取范式和主合取范式
+    bool openkanuo; // 是否输出卡诺图结果
+    bool openkanuohuajian; // 是否输出卡诺图化简结果
 
-    vector<int> PI;
-    bool endinter;
+    vector<int> PI; 
+    bool endinter; // 是否结束QM合并循环
     
 public:
     Reasoning();
