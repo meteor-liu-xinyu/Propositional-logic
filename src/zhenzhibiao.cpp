@@ -1,39 +1,14 @@
 #include "zhenzhibiao.h"
 #include <math.h>
 
-string lbstr = "（";
-string rbstr = "）";
-char lb0 = lbstr[0];
-char lb1 = lbstr[1];
-char lb2 = lbstr[2];
-char rb0 = rbstr[0];
-char rb1 = rbstr[1];
-char rb2 = rbstr[2];
-string lcotstr = "‘";
-string rcotstr = "’";
-char lcot0 = lcotstr[0];
-char lcot1 = lcotstr[1];
-char rcot0 = rcotstr[0];
-char rcot1 = rcotstr[1];
-
-string dotstr = "，";
-char dot0 = dotstr[0];
-char dot1 = dotstr[1];
-string prodstr = "∏";
-char prod0 = prodstr[0];
-char prod1 = prodstr[1];
-string sumstr = "∑";
-char sum0 = sumstr[0];
-char sum1 = sumstr[1];
-
 Reasoning::Reasoning()
 {
     mode = 0;
     ifend = false;
-    openzhenzhibiao = 1;
-    openNF = 1;
-    openkanuo = 1;
-    openkanuohuajian = 1;
+    openzhenzhibiao = true;
+    openNF = true;
+    openkanuo = true;
+    openkanuohuajian = true;
     return;
 }
 
@@ -57,27 +32,56 @@ void Reasoning::Init()
 
 void Reasoning::Input()
 {
+    // 用于判断中文符号的字符
+    string lbstr = "（";
+    string rbstr = "）";
+    char lb0 = lbstr[0];
+    char lb1 = lbstr[1];
+    char lb2 = lbstr[2];
+    char rb0 = rbstr[0];
+    char rb1 = rbstr[1];
+    char rb2 = rbstr[2];
+    string lcotstr = "‘";
+    string rcotstr = "’";
+    char lcot0 = lcotstr[0];
+    char lcot1 = lcotstr[1];
+    char rcot0 = rcotstr[0];
+    char rcot1 = rcotstr[1];
+    string dotstr = "，";
+    char dot0 = dotstr[0];
+    char dot1 = dotstr[1];
+    string prodstr = "∏";
+    char prod0 = prodstr[0];
+    char prod1 = prodstr[1];
+    char prod2 = prodstr[2];
+    string sumstr = "∑";
+    char sum0 = sumstr[0];
+    char sum1 = sumstr[1];
+    char sum2 = sumstr[2];
+
     cout << endl << "请输入：";
     getline(cin, input);
     cout << endl;
-
-    if (input == "/end" || input == "/END" || input == "/exit" || input == "/EXIT")
+    
+    if (input == "/end" || input == "/END" || input == "/exit" || input == "/EXIT") // 结束程序
     {
         ifend = true;
         return;
     }
-    else if (input == "/clear" || input == "/CLEAR")
+    else if (input == "/clear" || input == "/CLEAR") // 清屏
     {
         system("cls");
         cout << "否定:~、合取:^、析取:v/否定:`或'或‘或’、合取:*、析取:+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
         Input();
     }
-    else if (input == "/setting" || input == "/SETTING")
+    else if (input == "/setting" || input == "/SETTING") // 设置输出模式
     {
         Setting();
         Input();
     }
-    for (int i = 0; i < input.length(); i++) // 将中文括号转换为英文括号
+
+    // 将中文括号转换为英文括号
+    for (int i = 0; i < input.length(); i++)
     {
         if (i <= input.length() - 3 && input[i] == lb0 && input[i + 1] == lb1 && input[i+2] == lb2)
         {
@@ -93,7 +97,8 @@ void Reasoning::Input()
         }
     }
 
-    for (int i = 0; i < input.length(); i++) // 检查是否有符号混用
+    // 将not运算其他符号转为`
+    for (int i = 0; i < input.length(); i++)
     {
         if (input[i] == '\'')
         {
@@ -111,38 +116,15 @@ void Reasoning::Input()
             input.insert(i - 1, "`");
             i--;
         }
-        if (input[i] == '`' || input[i] == '*' || input[i] == '+')
+        else if (i >= 1 && input[i - 1] == dot0 && input[i] == dot1)
         {
-            if (mode == 0 || mode == 2)
-            {
-                mode = 2;
-            }
-            else
-            {
-                cout << "符号混用" << endl;
-                Input();
-            }
+            input.erase(i - 1, 3);
+            input.insert(i - 1, ",");
+            i--;
         }
-        else if (input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == 'V')
-        {
-            if (mode == 0 || mode == 1)
-            {
-                mode = 1;
-            }
-            else
-            {
-                cout << "符号混用" << endl;
-                Input();
-            }
-        }
-    }
-    if (mode == 0)
-    {
-        mode = 1; // 默认
     }
     
-    int count = 0;
-
+    int count = 0; // 括号匹配
     for (int i = 0; i < input.length(); i++)
     {
         if (input[i] == ' ') // 去除所有空格
@@ -167,73 +149,193 @@ void Reasoning::Input()
         {
             input[i] = 'v';
         }
+        else if (input[i] == 'm'); // 判断mode前暂不将m转换为M
         else if (input[i] >= 'a' && input[i] <= 'z' && input[i] != 'v') // 将小写字母转换为大写字母
         {
             input[i] = input[i] - 'a' + 'A';
         }
     }
-    initialinput = input;
     if (count != 0)
     {
         cout << "括号不匹配" << endl;
         Input();
     }
-    for (int i = 0; i < input.length(); i++) // 将符号转换为统一的符号
+
+    // 判断是否为连乘或连加式
+    for (int i = 0; i < input.length(); i++)
     {
-        if (mode == 2)
+        if (input[i] == prod0 && input[i+1] == prod1 && input[i+2] == prod2) // 连乘
         {
-            if (input[i] == '*')
+            initialinput = input;
+            input.erase(i, 3);
+            mode = 3;
+            break;
+        }
+        else if (input[i] == sum0 && input[i+1] == sum1 && input[i+2] == sum2) // 连加
+        {
+            initialinput = input;
+            input.erase(i, 3);
+            mode = 4;
+            break;
+        }
+    }
+
+    if (mode != 3 && mode != 4)
+    {
+        for (int i = 0; i < input.length(); i++) // 检查是否有符号混用,同时设置mode
+        {
+            if (input[i] == '`' || input[i] == '*' || input[i] == '+')
             {
-                input[i] = '^';
+                if (mode == 0 || mode == 2)
+                {
+                    mode = 2;
+                }
+                else
+                {
+                    cout << "符号混用" << endl;
+                    Input();
+                }
             }
-            else if (input[i] == '+')
+            else if (input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == 'V')
             {
-                input[i] = 'v';
+                if (mode == 0 || mode == 1)
+                {
+                    mode = 1;
+                }
+                else
+                {
+                    cout << "符号混用" << endl;
+                    Input();
+                }
             }
-            else if ((i == 0 && input[i] == '`') || (input[i] == '`' && (!(input[i-1] >= 'A' && input[i-1] <= 'Z')) && input[i-1] != ')'))
+        }
+        if (mode == 0)
+        {
+            mode = 1; // 默认
+        }
+        
+        initialinput = input; // 保存初始输入
+
+        for (int i = 0; i < input.length(); i++) // 将符号转换为统一的符号(not运算除外),便于后续计算,同时检查输入是否合法
+        {
+            if (mode == 2)
+            {
+                if (input[i] == '*')
+                {
+                    input[i] = '^';
+                }
+                else if (input[i] == '+')
+                {
+                    input[i] = 'v';
+                }
+                else if ((i == 0 && input[i] == '`') || (input[i] == '`' && (!(input[i-1] >= 'A' && input[i-1] <= 'Z')) && input[i-1] != ')'))
+                {
+                    cout << "输入有误" << endl;
+                    Input();
+                }
+            }
+            if (!(input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == '>' || input[i] == '<' || input[i] == '(' || input[i] == ')' || input[i] == '@' || input[i] == '[' || input[i] == ']' || input[i] == '`' || (input[i] >= 'A' && input[i] <= 'Z' && input[i] != 'V')))
             {
                 cout << "输入有误" << endl;
                 Input();
             }
         }
-        if (!(input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == '>' || input[i] == '<' || input[i] == '(' || input[i] == ')' || input[i] == '@' || input[i] == '[' || input[i] == ']' || input[i] == '`' || (input[i] >= 'A' && input[i] <= 'Z' && input[i] != 'V')))
+        FindArg(); // 获取命题变元名
+        // 在头尾添加括号
+        input.insert(0, "(");
+        input.insert(input.length(), ")");
+    }
+    else // 连乘或连加式
+    {
+        // 判断输入是否合法(是否有'=')
+        bool flag = false;
+        for (int i = 0; i < input.length(); i++)
+        {
+            if (input[i] == '=')
+            {
+                flag = true;
+                break;
+            }
+        }
+        if (!flag)
         {
             cout << "输入有误" << endl;
             Input();
         }
+        if (!(input[0] >= 'A' && input[0] <= 'Z' && input[1] == '(')) // 判断输入是否合法
+        {
+            cout << "输入有误" << endl;
+            Input();
+        }
+        input.erase(0, 1); // 删除函数符号
+
+        FindArg();
     }
-
-    FindArg(); // 获取命题变元名
-
-    // 在头尾添加括号
-    input.insert(0, "(");
-    input.insert(input.length(), ")");
 }
 
 void Reasoning::FindArg()
 {
-    for (int i = 0; i < input.length(); i++)
+    if (mode == 1 || mode == 2)
     {
-        bool flag = true;
-        // 跳过符号
-        if (input[i] != '~' && input[i] != '^' && input[i] != 'v' && input[i] != '@' && input[i] != '[' && input[i] != ']' && input[i] != '`' &&input[i] != '*' && input[i] != '+' && input[i] != '>' && input[i] != '<' && input[i] != '(' && input[i] != ')')
+        for (int i = 0; i < input.length(); i++)
         {
-            for (int j = 0; j < ArgName.size(); j++)
+            // 跳过符号
+            if (input[i] != '~' && input[i] != '^' && input[i] != 'v' && input[i] != '@' && input[i] != '[' && input[i] != ']' && input[i] != '`' &&input[i] != '*' && input[i] != '+' && input[i] != '>' && input[i] != '<' && input[i] != '(' && input[i] != ')')
             {
                 // 如果当前字符已经在ArgName中，则跳过
-                if (input[i] == ArgName[j])
+                bool flag = true;
+                for (int j = 0; j < ArgName.size(); j++)
                 {
-                    flag = false;
-                    break;
+                    if (input[i] == ArgName[j])
+                    {
+                        flag = false;
+                        break;
+                    }
                 }
-            }
-            if (flag == true)
-            {
-                ArgName.push_back(input[i]);
+                if (flag == true)
+                {
+                    ArgName.push_back(input[i]);
+                    Argnum++;
+                }
             }
         }
     }
-    Argnum = ArgName.size();
+    else // 连乘或连加式
+    {
+        int i = 1;
+        for (; input[i] != ')'; i++)
+        {
+            if (input[i] == '=')
+            {
+                cout << "输入有误" << endl;
+                Input();
+            }
+            if (input[i] >= 'A' && input[i] <= 'Z')
+            {
+                // 如果当前字符已经在ArgName中，则跳过
+                bool flag = true;
+                for (int j = 0; j < ArgName.size(); j++)
+                {
+                    if (input[i] == ArgName[j])
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag == true)
+                {
+                    ArgName.push_back(input[i]);
+                    Argnum++;
+                }
+            }
+        }
+        if (input[i+1] != '=')
+        {
+            cout << "输入有误" << endl;
+            Input();
+        }
+        input.erase(0, i+2); // 删除如(a,B,c,d)= 的部分
+    }
 
     // 按字母顺序重排
     for (int i = 0; i < Argnum; i++)
@@ -250,7 +352,7 @@ void Reasoning::FindArg()
     }
 }
 
-int Reasoning::FindRight(const string& temp)
+int Reasoning::FindRight(const string& temp) // 找到0开始第一个右括号的位置
 {
     int i = 0;
     while (temp[i] != ')')
@@ -260,9 +362,9 @@ int Reasoning::FindRight(const string& temp)
     return i;
 }
 
-int Reasoning::FindLeft(const string& temp)
+int Reasoning::FindLeft(const string& temp) // 找到0开始第一个右括号对应的左括号的位置
 {
-    int i = FindRight(temp);
+    int i = FindRight(temp); // 找到0开始第一个右括号的位置
     while (temp[i] != '(')
     {
         i--;
@@ -270,7 +372,7 @@ int Reasoning::FindLeft(const string& temp)
     return i;
 }
 
-void Reasoning::DToB(int n, int bin[])
+void Reasoning::DToB(int n, int bin[]) // 将十进制数n转换为二进制数，存入bin数组中
 {
     for (int i = 0; i < Argnum; i++)
     {
@@ -333,7 +435,7 @@ char Reasoning::If(char A, char B)
     
 }
 
-char Reasoning::Iff(char A, char B)
+char Reasoning::Iff(char A, char B) // 双条件
 {
     if (A == B)
     {
@@ -345,7 +447,7 @@ char Reasoning::Iff(char A, char B)
     }
 }
 
-char Reasoning::Xor(char A, char B)
+char Reasoning::Xor(char A, char B) // 异或
 {
     if (A != B)
     {
@@ -357,21 +459,23 @@ char Reasoning::Xor(char A, char B)
     }
 }
 
-char Reasoning::Nand(char A, char B)
+char Reasoning::Nand(char A, char B) // 与非
 {
     return Not(And(A, B));
 }
 
-char Reasoning::Nor(char A, char B)
+char Reasoning::Nor(char A, char B) // 或非
 {
     return Not(Or(A, B));
 }
 
-int Reasoning::CalculateValue(int n)
+int Reasoning::CalculateValue(int n) // 计算真值表n行的真值
 {
-    int bin[Argnum];
+    // 将十进制数n转换为二进制数，存入bin数组中
+    int bin[Argnum] = {0};
     DToB(n, bin);
 
+    // 用T/F替换ArgName对应的值,存入temp中
     string temp = input;
     for (int i = 0; i < input.length(); i++)
     {
@@ -393,6 +497,7 @@ int Reasoning::CalculateValue(int n)
     
     while (temp[0] == '(')
     {
+        // 计算最靠左侧的最内侧的一对括号边界
         int right = FindRight(temp);
         int left = FindLeft(temp);
         // 计算not运算
@@ -419,6 +524,7 @@ int Reasoning::CalculateValue(int n)
                     right--;
                 }
             }
+            // 补上省略的^
             for (int i = left+1; i < right-1; i++)
             {
                 if ((temp[i] >= 'A' && temp[i] <= 'Z') && ((temp[i+1] >= 'A' && temp[i+1] <='Z')))
@@ -433,6 +539,7 @@ int Reasoning::CalculateValue(int n)
             }
         }
 
+        // 计算其他运算
         for (int i = left+2; i < right-1; i++)
         {
             if (temp[i] =='^' || temp[i] == 'v' || temp[i] == '>' || temp[i] == '<' || temp[i] == '@' || temp[i] == '[' || temp[i] == ']')
@@ -472,6 +579,7 @@ int Reasoning::CalculateValue(int n)
             
         }
         
+        // 删除剩下的空括号
         temp.erase(left+2, 1);
         temp.erase(left, 1);
     }
@@ -486,19 +594,78 @@ int Reasoning::CalculateValue(int n)
     }
 }
 
-void Reasoning::Cal()
+void Reasoning::Cal() // 计算真值表
 {
-    for (int i = 0; i < pow(2, Argnum); i++)
+    if (mode == 3 || mode == 4)
     {
-        Value.push_back(CalculateValue(i));
-        if (Value[i] == 1)
+        if (input[0] == 'M' && input[1] == '(' && mode == 3)
         {
-            PI.push_back(i);
+            for (int i = 0; i < pow(2, Argnum); i++)
+            {
+                Value.push_back(1);
+            }
+        }
+        else if (input[0] == 'm' && input[1] == '(' && mode == 4)
+        {
+            for (int i = 0; i < pow(2, Argnum); i++)
+            {
+                Value.push_back(0);
+            }
+        }
+        else
+        {
+            cout << "输入有误" << endl;
+            Input();
+        }
+
+        // 读取()中的逗号分隔的数字，更改对应Value的值
+        string temp;
+        int i = 2;
+        for (; input[i] != ')'; i++)
+        {
+            if (!(input[i] >= '0' && input[i] <= '9') && input[i]!= ',')
+            {
+                cout << "输入有误" << endl;
+                Input();
+            }
+            if (input[i] != ',')
+            {
+                temp.push_back(input[i]);
+            }
+            else
+            {
+                int tempnum = atoi(temp.c_str());
+                Value[tempnum] = !Value[tempnum];
+                temp.clear();
+            }
+        }
+        int tempnum = atoi(temp.c_str());
+        Value[tempnum] = !Value[tempnum];
+
+        mode = 2; // 化归位mode2的情况
+
+        for (int i = 0; i < pow(2, Argnum); i++)
+        {
+            if (Value[i] == 1)
+            {
+                PI.push_back(i);
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < pow(2, Argnum); i++)
+        {
+            Value.push_back(CalculateValue(i));
+            if (Value[i] == 1)
+            {
+                PI.push_back(i);
+            }
         }
     }
 }
 
-void Reasoning::MakeTable()
+void Reasoning::MakeTable() // 打印真值表
 {
     cout << endl << "真值表:" << endl;
     for (int i = 0; i < Argnum; i++)
@@ -525,16 +692,15 @@ void Reasoning::MakeTable()
         }
         cout << "  " << Value[i] << endl;
     }
-
 }
 
-void Reasoning::CNF()
+void Reasoning::CNF() // 计算主合取范式
 {
-    if (Argnum < 2)
+    if (Argnum < 2) // 只有一个变量时,不输出
     {
         return;
     }
-    bool alltrue = true;
+    bool alltrue = true; // 判断是否为永真式
     for (const auto& i : Value)
     {
         if (i == 0)
@@ -549,6 +715,7 @@ void Reasoning::CNF()
         CNFMstr = 'T';
         return;
     }
+
     int count = 0;
     if (mode == 1)
     {
@@ -635,13 +802,14 @@ void Reasoning::CNF()
     }
 }
 
-void Reasoning::DNF()
+void Reasoning::DNF() // 计算主析取范式
 {
-    if (Argnum < 2)
+    if (Argnum < 2) // 只有一个变量时,不输出
     {
         return;
     }
-    bool allfalse = true;
+
+    bool allfalse = true; // 判断是否为重言式
     for (const auto& i : Value)
     {
         if (i == 1)
@@ -656,6 +824,7 @@ void Reasoning::DNF()
         DNFmstr = 'F';
         return;
     }
+
     int count = 0;
     if (mode == 1)
     {
@@ -734,11 +903,11 @@ void Reasoning::DNF()
     DNFstr.pop_back();
 }
 
-void Reasoning::PrintNF()
+void Reasoning::PrintNF() // 打印主合取、析取范式
 {
     CNF(); // 生成CNF
     DNF(); // 生成DNF
-    if (CNFstr.size() == 0 && DNFstr.size() == 0)
+    if (CNFstr.size() == 0 && DNFstr.size() == 0) // 如果没有内容，则不输出
     {
         return;
     }
@@ -748,7 +917,6 @@ void Reasoning::PrintNF()
     cout << endl << "主析取范式:" << endl;
     cout << DNFstr << endl;
     cout << DNFmstr << endl;
-
 }
 
 void Reasoning::Setting() // 设置输出选项
@@ -795,6 +963,7 @@ void Reasoning::Run()
     cout << "支持离散数学和数字逻辑两种符号体系，请勿混用" << endl;
     cout << "示例输入:~(~A^Bv(A^~BVc)^A>C)>(Cv(A<B))" << endl;
     cout << "示例输入:(A`(B+C`))`(A+B`+C) 或 (A`(B+C`))`*(A+B`+C)" << endl;
+    cout << "示例输入:F(x,y,z)=∑ m(2,3,5,7)或F(x,y,z)=∏ M(2,3,5,7)" << endl;
 
     while (1)
     {
@@ -805,26 +974,26 @@ void Reasoning::Run()
             break;
         }
         Cal();
-        if (openzhenzhibiao == 1)
+        if (openzhenzhibiao)
         {
             MakeTable(); // 生成真值表
         }
-        if (openNF == 1)
+        if (openNF)
         {
             PrintNF(); // 打印结果
         }
-        if (openkanuo == 1)
+        if (openkanuo)
         {
             MakeKanuo(); // 生成卡诺图
         }
-        if (openkanuohuajian == 1)
+        if (openkanuohuajian)
         {
             QM(); // 生成卡诺图化简
         }
     }
 }
 
-void Reasoning::MakeKanuo()
+void Reasoning::MakeKanuo() // 生成卡诺图
 {
     if (Argnum != 3 && Argnum != 4)
     {
@@ -880,7 +1049,7 @@ void Reasoning::MakeKanuo()
     }
 }
 
-int Reasoning::Countone(string terms)
+int Reasoning::Countone(string terms) // 计算字符串中1的个数
 {
     int count = 0;
     for (const auto& term : terms)
@@ -893,7 +1062,7 @@ int Reasoning::Countone(string terms)
     return count;
 }
 
-bool Reasoning::IfNear(const string& a, const string& b)
+bool Reasoning::IfNear(const string& a, const string& b) // 判断两个字符串是否只有一位不同
 {
     int diffCount = 0;
     for (int i = 0; i < a.size(); i++)
@@ -910,7 +1079,7 @@ bool Reasoning::IfNear(const string& a, const string& b)
     return true;
 }
 
-string Reasoning::Combine(const string& a, const string& b)
+string Reasoning::Combine(const string& a, const string& b) // 合并两个字符串，将不同的位置替换为'-'
 {
     string combined = a;
     for (int i = 0; i < a.size(); i++)
@@ -923,7 +1092,7 @@ string Reasoning::Combine(const string& a, const string& b)
     return combined;
 }
 
-int Reasoning::CountDashes(const string& str)
+int Reasoning::CountDashes(const string& str) // 计算字符串中'-'的个数
 {
     int count = 0;
     for (int i = 0; i < str.size(); i++)
@@ -936,7 +1105,7 @@ int Reasoning::CountDashes(const string& str)
     return count;
 }
 
-void Reasoning::QM()
+void Reasoning::QM() // 卡诺图化简
 {
     if (DNFstr == "F")
     {
@@ -970,19 +1139,21 @@ void Reasoning::QM()
         }
         if (allfalse)
         {
-            cout << endl << "卡诺图化简结果: 该命题为永假式,无需化简" << endl;
+            cout << endl << "卡诺图化简结果: 该命题为重言式,无需化简" << endl;
             return;
         }
     }
     
-    // 将PI转为二进制字符串
     vector<vector<string>> groups;
+    // 初始化groups
     for (int i = 0; i < Argnum+1; i++)
     {
         groups.push_back(vector<string>());
     }
+
     for (int i = 0; i < PI.size(); i++)
     {
+        // 将PI转为二进制字符串
         string binstr;
         int bin[Argnum] = {0};
         DToB(PI[i], bin);
@@ -990,14 +1161,16 @@ void Reasoning::QM()
         {
             binstr += to_string(bin[Argnum-j-1]);
         }
+        // 将二进制字符串添加到对应的组中
         groups[Countone(binstr)].push_back(binstr);
     }
 
-    while (!endinter)
+    while (!endinter) // 循环合并项
     {
         groups = QMCombine(groups); // 合并项
     }
 
+    // 生成最终PI
     vector<string> finalPI;
     for (const auto& group : groups)
     {
@@ -1007,6 +1180,7 @@ void Reasoning::QM()
         }
     }
 
+    // 从最终PI生成卡诺图化简结果
     if (mode == 1)
     {
         for (const auto& term : finalPI)
@@ -1056,7 +1230,7 @@ void Reasoning::QM()
     cout << endl << "卡诺图化简结果: " << kanuo << endl;
 }
 
-vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups)
+vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups) // 合并项
 {
     endinter = true; // 标记是否已经不能再合并
     vector<vector<string>> nextgroups; // 存储合并后的项
@@ -1102,6 +1276,7 @@ vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups
                         {
                             nextgroups[onenum].push_back(combined);
                         }
+                        // 标记合并的项
                         used[i][j] = true;
                         used[i+1][k] = true;
                         break;

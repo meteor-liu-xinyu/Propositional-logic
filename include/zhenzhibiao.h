@@ -21,10 +21,10 @@ private:
     int mode;
     bool ifend;
 
-    int openzhenzhibiao;
-    int openNF;
-    int openkanuo;
-    int openkanuohuajian;
+    bool openzhenzhibiao;
+    bool openNF;
+    bool openkanuo;
+    bool openkanuohuajian;
 
     vector<int> PI;
     bool endinter;
