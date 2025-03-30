@@ -1,14 +1,14 @@
-#include "zhenzhibiao.h"
+#include "reasoning.h"
 #include <math.h>
 
 Reasoning::Reasoning()
 {
     mode = 0;
     ifend = false;
-    openzhenzhibiao = true;
+    openTheTruthTable = true;
     openNF = true;
-    openkanuo = true;
-    openkanuohuajian = true;
+    openKanuo = true;
+    openKanuoSimplify = true;
     return;
 }
 
@@ -924,8 +924,8 @@ void Reasoning::PrintNF() // 打印主合取、析取范式
 void Reasoning::Setting() // 设置输出选项
 {
     cout << "是否输出真值表(1/0):";
-    cin >> openzhenzhibiao;
-    if (openzhenzhibiao != 0 && openzhenzhibiao != 1)
+    cin >> openTheTruthTable;
+    if (openTheTruthTable != 0 && openTheTruthTable != 1)
     {
         cout << "输入错误" << endl;
         while (getchar() != '\n');
@@ -940,16 +940,16 @@ void Reasoning::Setting() // 设置输出选项
         Setting();
     }
     cout << "是否输出卡诺图(1/0):";
-    cin >> openkanuo;
-    if (openkanuo != 0 && openkanuo != 1)
+    cin >> openKanuo;
+    if (openKanuo != 0 && openKanuo != 1)
     {
         cout << "输入错误" << endl;
         while (getchar() != '\n');
         Setting();
     }
     cout << "是否输出卡诺图化简(1/0):";
-    cin >> openkanuohuajian;
-    if (openkanuohuajian != 0 && openkanuohuajian != 1)
+    cin >> openKanuoSimplify;
+    if (openKanuoSimplify != 0 && openKanuoSimplify != 1)
     {
         cout << "输入错误" << endl;
         while (getchar() != '\n');
@@ -975,7 +975,7 @@ void Reasoning::Run()
             break;
         }
         Cal();
-        if (openzhenzhibiao)
+        if (openTheTruthTable)
         {
             MakeTable(); // 生成真值表
         }
@@ -983,11 +983,11 @@ void Reasoning::Run()
         {
             PrintNF(); // 打印结果
         }
-        if (openkanuo)
+        if (openKanuo)
         {
             MakeKanuo(); // 生成卡诺图
         }
-        if (openkanuohuajian)
+        if (openKanuoSimplify)
         {
             QM(); // 生成卡诺图化简
         }

@@ -1,5 +1,5 @@
-#ifndef ZHENZHIBIAO_H
-#define ZHENZHIBIAO_H
+#ifndef REASONING_H
+#define REASONING_H
 
 #include <iostream>
 #include <vector>
@@ -21,10 +21,10 @@ private:
     int mode; // 1: 离散数学符号体系 2: 数字逻辑符号体系 3: 连乘 4: 连加
     bool ifend; // 是否结束
 
-    bool openzhenzhibiao; // 是否输出真值表
+    bool openTheTruthTable; // 是否输出真值表
     bool openNF; // 是否输出主析取范式和主合取范式
-    bool openkanuo; // 是否输出卡诺图结果
-    bool openkanuohuajian; // 是否输出卡诺图化简结果
+    bool openKanuo; // 是否输出卡诺图结果
+    bool openKanuoSimplify; // 是否输出卡诺图化简结果
 
     vector<int> PI; 
     bool endinter; // 是否结束QM合并循环
