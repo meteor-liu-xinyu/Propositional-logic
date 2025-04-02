@@ -26,9 +26,9 @@ private:
     bool openKanuo; // 是否输出卡诺图结果
     bool openKanuoSimplify; // 是否输出卡诺图化简结果
 
-    vector<int> PI; 
+    vector<int> PI;
     bool endinter; // 是否结束QM合并循环
-    
+
 public:
     Reasoning();
     ~Reasoning();
@@ -37,7 +37,7 @@ public:
     void FindArg();
     int FindLeft(const string& temp);
     int FindRight(const string& temp);
-    
+
     int CalculateValue(int n);
     void DToB(int n, int bin[]);
     void Cal();
@@ -50,7 +50,7 @@ public:
     char Xor(char A, char B);
     char Nand(char A, char B);
     char Nor(char A, char B);
-    
+
     void MakeTable();
     void CNF(); // 主合取范式
     void DNF(); // 主析取范式

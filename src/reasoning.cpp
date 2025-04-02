@@ -64,7 +64,7 @@ void Reasoning::Input()
     cout << endl << "请输入：";
     getline(cin, input);
     cout << endl;
-    
+
     if (input == "/end" || input == "/END" || input == "/exit" || input == "/EXIT") // 结束程序
     {
         ifend = true;
@@ -125,7 +125,7 @@ void Reasoning::Input()
             i--;
         }
     }
-    
+
     int count = 0; // 括号匹配
     for (int i = 0; i < input.length(); i++)
     {
@@ -215,7 +215,7 @@ void Reasoning::Input()
         {
             mode = 1; // 默认
         }
-        
+
         initialinput = input; // 保存初始输入
 
         for (int i = 0; i < input.length(); i++) // 将符号转换为统一的符号(not运算除外),便于后续计算,同时检查输入是否合法
@@ -434,7 +434,7 @@ char Reasoning::If(char A, char B)
     {
         return 'T';
     }
-    
+
 }
 
 char Reasoning::Iff(char A, char B) // 双条件
@@ -496,7 +496,7 @@ int Reasoning::CalculateValue(int n) // 计算真值表n行的真值
             }
         }
     }
-    
+
     while (temp[0] == '(')
     {
         // 计算最靠左侧的最内侧的一对括号边界
@@ -578,9 +578,9 @@ int Reasoning::CalculateValue(int n) // 计算真值表n行的真值
                 right -= 2;
                 i--;
             }
-            
+
         }
-        
+
         // 删除剩下的空括号
         temp.erase(left+2, 1);
         temp.erase(left, 1);
@@ -675,7 +675,7 @@ void Reasoning::MakeTable() // 打印真值表
         cout << ArgName[i]<< "\t";
     }
     cout << initialinput << endl;
-    
+
     for (int i = 0; i < pow(2, Argnum); i++)
     {
         int bin[Argnum] = {0};
@@ -1000,7 +1000,7 @@ void Reasoning::MakeKanuo() // 生成卡诺图
     {
         cout << "不支持" << Argnum << "个变元的卡诺图" << endl;
     }
-    
+
     cout << endl << "卡诺图:" << endl;
     if (Argnum == 3)
     {
@@ -1144,7 +1144,7 @@ void Reasoning::QM() // 卡诺图化简
             return;
         }
     }
-    
+
     vector<vector<string>> groups;
     // 初始化groups
     for (int i = 0; i < Argnum+1; i++)
