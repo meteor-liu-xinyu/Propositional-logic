@@ -32,38 +32,20 @@ void Reasoning::Init()
 
 void Reasoning::Input()
 {
-    // 用于判断中文符号的字符
-    string lbstr = "（";
-    string rbstr = "）";
-    char lb0 = lbstr[0];
-    char lb1 = lbstr[1];
-    char lb2 = lbstr[2];
-    char rb0 = rbstr[0];
-    char rb1 = rbstr[1];
-    char rb2 = rbstr[2];
-    string lcotstr = "‘";
-    string rcotstr = "’";
-    char lcot0 = lcotstr[0];
-    char lcot1 = lcotstr[1];
-    char rcot0 = rcotstr[0];
-    char rcot1 = rcotstr[1];
-    string dotstr = "，";
-    char dot0 = dotstr[0];
-    char dot1 = dotstr[1];
-    string prodstr = "∏";
-    char prod0 = prodstr[0];
-    char prod1 = prodstr[1];
-    char prod2 = prodstr[2];
-    string sumstr = "∑";
-    char sum0 = sumstr[0];
-    char sum1 = sumstr[1];
-    char sum2 = sumstr[2];
-
     Init(); // 初始化
 
     cout << endl << "请输入：";
-    getline(cin, input);
+    // getline(cin, input);
+    // input = "=∑m(0,1,2,4,5,6,8,9,12,13,14)"; //! 测试用例
+    input = "=∑(0,1,2,4,5,6,8,9,12,13,14)"; //! 测试用例
     cout << endl;
+
+    if (input.size() == 0) // 判断输入是否为空
+    {
+        cout << "输入为空" << endl;
+        Init();
+        Input();
+    }
 
     if (input == "/end" || input == "/END" || input == "/exit" || input == "/EXIT") // 结束程序
     {
@@ -85,13 +67,13 @@ void Reasoning::Input()
     // 将中文括号转换为英文括号
     for (int i = 0; i < input.length(); i++)
     {
-        if (i <= input.length() - 3 && input[i] == lb0 && input[i + 1] == lb1 && input[i+2] == lb2)
+        if (i <= input.length() - 3 && input[i] == '\357' && input[i + 1] == '\274' && input[i+2] == '\210') // 判断是否为中文左括号
         {
             input.erase(i, 3);
             input.insert(i, "(");
             i--;
         }
-        else if (i >= 2 && input[i - 2] == rb0 && input[i - 1] == rb1 && input[i] == rb2)
+        else if (i >= 2 && input[i - 2] == '\357' && input[i - 1] == '\274' && input[i] == '\211') // 判断是否为中文右括号
         {
             input.erase(i - 2, 3);
             input.insert(i - 2, ")");
@@ -106,19 +88,19 @@ void Reasoning::Input()
         {
             input[i] = '`';
         }
-        else if (i <= input.length() - 2 && input[i] == lcot0 && input[i + 1] == lcot1)
+        else if (i <= input.length() - 2 && input[i] == '\342' && input[i + 1] == '\200' && input[i + 2] == '\230') // 判断是否为中文左单引号
         {
             input.erase(i, 3);
             input.insert(i, "`");
             i--;
         }
-        else if (i >= 1 && input[i - 1] == rcot0 && input[i] == rcot1)
+        else if (i >= 1 && input[i - 1] == '\342' && input[i] == '\200' && input[i - 2] == '\231') // 判断是否为中文右单引号
         {
             input.erase(i - 1, 3);
             input.insert(i - 1, "`");
             i--;
         }
-        else if (i >= 1 && input[i - 1] == dot0 && input[i] == dot1)
+        else if (i >= 1 && input[i - 1] == '\357' && input[i] == '\274' && input[i + 1] == '\214') // 判断是否为中文逗号
         {
             input.erase(i - 1, 3);
             input.insert(i - 1, ",");
@@ -166,17 +148,25 @@ void Reasoning::Input()
     // 判断是否为连乘或连加式
     for (int i = 0; i < input.length(); i++)
     {
-        if (input[i] == prod0 && input[i+1] == prod1 && input[i+2] == prod2) // 连乘
+        if (input[i] == '\342' && input[i+1] == '\210' && input[i+2] == '\217') // 连乘
         {
             initialinput = input;
             input.erase(i, 3);
+            if (input[i] != 'M')
+            {
+                input.insert(i, "M");
+            }
             mode = 3;
             break;
         }
-        else if (input[i] == sum0 && input[i+1] == sum1 && input[i+2] == sum2) // 连加
+        else if (input[i] == '\342' && input[i+1] == '\210' && input[i] == '\221') // 连加
         {
             initialinput = input;
             input.erase(i, 3);
+            if (input[i] != 'm')
+            {
+                input.insert(i, "m");
+            }
             mode = 4;
             break;
         }
