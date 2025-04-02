@@ -50,7 +50,6 @@ void Reasoning::Input()
         cout << "输入为空" << endl;
         Input();
     }
-    cout << input << endl;
     if (input == "/end" || input == "/END" || input == "/exit" || input == "/EXIT") // 结束程序
     {
         ifend = true;

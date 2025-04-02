@@ -4,7 +4,7 @@
 
 int main()
 {
-    SetConsoleOutputCP(65001);
+    SetConsoleOutputCP(65001); // 设置控制台输出编码为UTF-8
 
     Reasoning reasoning;
 
