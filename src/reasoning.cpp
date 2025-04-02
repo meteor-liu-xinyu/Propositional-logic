@@ -36,8 +36,6 @@ void Reasoning::Input()
 
     cout << endl << "请输入：";
     getline(cin, input);
-    // input = "∑m(0,1,2,4,5,6,8,9,12,13,14)"; //! 测试用例
-    // input = "∑(0,1,2,4,5,6,8,9,12,13,14)"; //! 测试用例
     cout << endl;
     for (int i = 0; i < input.length(); i++)
     {
