@@ -35,18 +35,24 @@ void Reasoning::Input()
     Init(); // 初始化
 
     cout << endl << "请输入：";
-    // getline(cin, input);
-    // input = "=∑m(0,1,2,4,5,6,8,9,12,13,14)"; //! 测试用例
-    input = "=∑(0,1,2,4,5,6,8,9,12,13,14)"; //! 测试用例
+    getline(cin, input);
+    // input = "∑m(0,1,2,4,5,6,8,9,12,13,14)"; //! 测试用例
+    // input = "∑(0,1,2,4,5,6,8,9,12,13,14)"; //! 测试用例
     cout << endl;
-
+    for (int i = 0; i < input.length(); i++)
+    {
+        if (input[i] == ' ') // 去除空格
+        {
+            input.erase(i, 1);
+            i--;
+        }
+    }
     if (input.size() == 0) // 判断输入是否为空
     {
         cout << "输入为空" << endl;
-        Init();
         Input();
     }
-
+    cout << input << endl;
     if (input == "/end" || input == "/END" || input == "/exit" || input == "/EXIT") // 结束程序
     {
         ifend = true;
@@ -111,12 +117,7 @@ void Reasoning::Input()
     int count = 0; // 括号匹配
     for (int i = 0; i < input.length(); i++)
     {
-        if (input[i] == ' ') // 去除所有空格
-        {
-            input.erase(i, 1);
-            i--;
-        }
-        else if (input[i] == '(')
+        if (input[i] == '(')
         {
             count++;
         }
@@ -159,7 +160,7 @@ void Reasoning::Input()
             mode = 3;
             break;
         }
-        else if (input[i] == '\342' && input[i+1] == '\210' && input[i] == '\221') // 连加
+        else if (input[i] == '\342' && input[i+1] == '\210' && input[i+2] == '\221') // 连加
         {
             initialinput = input;
             input.erase(i, 3);
@@ -251,12 +252,12 @@ void Reasoning::Input()
         }
         if (!flag)
         {
-            cout << "输入有误" << endl;
+            cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
             Input();
         }
         if (!(input[0] >= 'A' && input[0] <= 'Z' && input[1] == '(')) // 判断输入是否合法
         {
-            cout << "输入有误" << endl;
+            cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
             Input();
         }
         input.erase(0, 1); // 删除函数符号
@@ -299,7 +300,7 @@ void Reasoning::FindArg()
         {
             if (input[i] == '=')
             {
-                cout << "输入有误" << endl;
+                cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
                 Input();
             }
             if (input[i] >= 'A' && input[i] <= 'Z')
@@ -323,7 +324,7 @@ void Reasoning::FindArg()
         }
         if (input[i+1] != '=')
         {
-            cout << "输入有误" << endl;
+            cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
             Input();
         }
         input.erase(0, i+2); // 删除如(a,B,c,d)= 的部分
@@ -606,7 +607,7 @@ void Reasoning::Cal() // 计算真值表
         }
         else
         {
-            cout << "输入有误" << endl;
+            cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
             Input();
         }
 
@@ -617,7 +618,9 @@ void Reasoning::Cal() // 计算真值表
         {
             if (!(input[i] >= '0' && input[i] <= '9') && input[i]!= ',')
             {
-                cout << "输入有误" << endl;
+                cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
+                
+                input = temp;
                 Input();
             }
             if (input[i] != ',')
