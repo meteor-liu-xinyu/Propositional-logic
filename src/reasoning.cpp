@@ -1171,6 +1171,11 @@ void Reasoning::QM() // 卡诺图化简
         }
     }
 
+    for (const auto& term : finalPI) // !test
+    {
+        cout << term << endl;
+    }
+
     // 从最终PI生成卡诺图化简结果
     if (mode == 1)
     {
@@ -1235,16 +1240,8 @@ vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups
     {
         for (int j = 0; j < groups[i].size(); j++) // 遍历有i个1的组
         {
-            if (used[i][j])
-            {
-                continue; // 跳过已经被合并的项
-            }
             for (int k = 0; k < groups[i+1].size(); k++) // 遍历有i+1个1的组
             {
-                if (used[i+1][k])
-                {
-                    continue; // 跳过已经被合并的项
-                }
                 if (IfNear(groups[i][j], groups[i+1][k]))
                 {
                     int dashesnum = min(CountDashes(groups[i][j]), CountDashes(groups[i+1][k]));
@@ -1270,7 +1267,6 @@ vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups
                         // 标记合并的项
                         used[i][j] = true;
                         used[i+1][k] = true;
-                        break;
                     }
                 }
             }
