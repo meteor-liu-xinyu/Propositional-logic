@@ -616,7 +616,7 @@ void Reasoning::Cal() // 计算真值表
             if (!(input[i] >= '0' && input[i] <= '9') && input[i]!= ',')
             {
                 cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
-                
+
                 input = temp;
                 Input();
             }
@@ -1169,11 +1169,6 @@ void Reasoning::QM() // 卡诺图化简
         {
             finalPI.push_back(term);
         }
-    }
-
-    for (const auto& term : finalPI) // !test
-    {
-        cout << term << endl;
     }
 
     // 从最终PI生成卡诺图化简结果
