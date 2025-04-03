@@ -20,6 +20,7 @@ private:
     string kanuo; // 卡诺图化简结果
     int mode; // 1: 离散数学符号体系 2: 数字逻辑符号体系 3: 连乘 4: 连加
     bool ifend; // 是否结束
+    bool skip; // 是否跳过
 
     bool openTheTruthTable; // 是否输出真值表
     bool openNF; // 是否输出主析取范式和主合取范式

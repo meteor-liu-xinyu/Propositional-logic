@@ -48,7 +48,8 @@ void Reasoning::Input()
     if (input.size() == 0) // 判断输入是否为空
     {
         cout << "输入为空" << endl;
-        Input();
+        skip = true;
+        return;
     }
     if (input == "/end" || input == "/END" || input == "/exit" || input == "/EXIT") // 结束程序
     {
@@ -59,12 +60,14 @@ void Reasoning::Input()
     {
         system("cls");
         cout << "否定:~、合取:^、析取:v/否定:`或'或‘或’、合取:*、析取:+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
-        Input();
+        skip = true;
+        return;
     }
     else if (input == "/setting" || input == "/SETTING") // 设置输出模式
     {
         Setting();
-        Input();
+        skip = true;
+        return;
     }
 
     // 将中文括号转换为英文括号
@@ -124,7 +127,8 @@ void Reasoning::Input()
             if (count < 0)
             {
                 cout << "括号不匹配" << endl;
-                Input();
+                skip = true;
+                return;
             }
         }
         else if (input[i] == 'V') // 将大写字母V转换为小写字母v
@@ -140,7 +144,8 @@ void Reasoning::Input()
     if (count != 0)
     {
         cout << "括号不匹配" << endl;
-        Input();
+        skip = true;
+        return;
     }
 
     // 判断是否为连乘或连加式
@@ -183,7 +188,8 @@ void Reasoning::Input()
                 else
                 {
                     cout << "符号混用" << endl;
-                    Input();
+                    skip = true;
+                    return;
                 }
             }
             else if (input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == 'V')
@@ -195,7 +201,8 @@ void Reasoning::Input()
                 else
                 {
                     cout << "符号混用" << endl;
-                    Input();
+                    skip = true;
+                    return;
                 }
             }
         }
@@ -221,13 +228,15 @@ void Reasoning::Input()
                 else if ((i == 0 && input[i] == '`') || (input[i] == '`' && (!(input[i-1] >= 'A' && input[i-1] <= 'Z')) && input[i-1] != ')'))
                 {
                     cout << "输入有误" << endl;
-                    Input();
+                    skip = true;
+                    return;
                 }
             }
             if (!(input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == '>' || input[i] == '<' || input[i] == '(' || input[i] == ')' || input[i] == '@' || input[i] == '[' || input[i] == ']' || input[i] == '`' || (input[i] >= 'A' && input[i] <= 'Z' && input[i] != 'V')))
             {
                 cout << "输入有误" << endl;
-                Input();
+                skip = true;
+                return;
             }
         }
         FindArg(); // 获取命题变元名
@@ -249,13 +258,15 @@ void Reasoning::Input()
         }
         if (!flag)
         {
-            cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
-            Input();
+            cout << "输入有误" << endl;
+            skip = true;
+            return;
         }
         if (!(input[0] >= 'A' && input[0] <= 'Z' && input[1] == '(')) // 判断输入是否合法
         {
-            cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
-            Input();
+            cout << "输入有误" << endl;
+            skip = true;
+            return;
         }
         input.erase(0, 1); // 删除函数符号
 
@@ -297,8 +308,9 @@ void Reasoning::FindArg()
         {
             if (input[i] == '=')
             {
-                cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
-                Input();
+                cout << "输入有误" << endl;
+                skip = true;
+                return;
             }
             if (input[i] >= 'A' && input[i] <= 'Z')
             {
@@ -321,8 +333,9 @@ void Reasoning::FindArg()
         }
         if (input[i+1] != '=')
         {
-            cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
-            Input();
+            cout << "输入有误" << endl;
+            skip = true;
+            return;
         }
         input.erase(0, i+2); // 删除如(a,B,c,d)= 的部分
     }
@@ -604,8 +617,9 @@ void Reasoning::Cal() // 计算真值表
         }
         else
         {
-            cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
-            Input();
+            cout << "输入有误" << endl;
+            skip = true;
+            return;
         }
 
         // 读取()中的逗号分隔的数字，更改对应Value的值
@@ -615,10 +629,9 @@ void Reasoning::Cal() // 计算真值表
         {
             if (!(input[i] >= '0' && input[i] <= '9') && input[i]!= ',')
             {
-                cout << "输入有误(此处可能有bug,如遇bug请重新启动程序)" << endl;
-
-                input = temp;
-                Input();
+                cout << "输入有误" << endl;
+                skip = true;
+                return;
             }
             if (input[i] != ',')
             {
@@ -963,6 +976,11 @@ void Reasoning::Run()
     while (1)
     {
         Input();
+        if (skip == true)
+        {
+            skip = false;
+            continue;
+        }
         if (ifend)
         {
             break;
