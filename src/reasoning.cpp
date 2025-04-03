@@ -201,7 +201,7 @@ void Reasoning::Input()
         }
         if (mode == 0)
         {
-            mode = 1; // 默认
+            mode = 2; // 默认
         }
 
         initialinput = input; // 保存初始输入
@@ -659,6 +659,7 @@ void Reasoning::Cal() // 计算真值表
 
 void Reasoning::MakeTable() // 打印真值表
 {
+    cout << "-----------------------------------------";
     cout << endl << "真值表:" << endl;
     for (int i = 0; i < Argnum; i++)
     {
@@ -717,7 +718,7 @@ void Reasoning::CNF() // 计算主合取范式
             {
                 if (CNFMstr.size() == 0)
                 {
-                    CNFMstr += " ^ M(";
+                    CNFMstr += " ∏ M(";
                 }
                 string num = to_string(i);
                 CNFMstr.append(num);
@@ -746,8 +747,7 @@ void Reasoning::CNF() // 计算主合取范式
                 CNFstr.push_back('\n');
             }
         }
-        CNFMstr.pop_back();
-        CNFMstr.push_back(')');
+        CNFstr.pop_back();
     }
     else if (mode == 2)
     {
@@ -757,7 +757,7 @@ void Reasoning::CNF() // 计算主合取范式
             {
                 if (CNFMstr.size() == 0)
                 {
-                    CNFMstr += " \\prod M(";
+                    CNFMstr += " ∏ M(";
                 }
                 string num = to_string(i);
                 CNFMstr.append(num);
@@ -785,13 +785,9 @@ void Reasoning::CNF() // 计算主合取范式
                 CNFstr.push_back('\n');
             }
         }
-        CNFMstr.pop_back();
-        CNFMstr.push_back(')');
     }
-    if (mode == 1)
-    {
-        CNFstr.pop_back();
-    }
+    CNFMstr.pop_back();
+    CNFMstr.push_back(')');
 }
 
 void Reasoning::DNF() // 计算主析取范式
@@ -826,7 +822,7 @@ void Reasoning::DNF() // 计算主析取范式
             {
                 if (DNFmstr.size() == 0)
                 {
-                    DNFmstr += " v m(";
+                    DNFmstr += " ∑ m(";
                 }
                 string num = to_string(i);
                 DNFmstr.append(num);
@@ -855,8 +851,6 @@ void Reasoning::DNF() // 计算主析取范式
                 DNFstr.push_back('\n');
             }
         }
-        DNFmstr.pop_back();
-        DNFmstr.push_back(')');
     }
     else if (mode == 2)
     {
@@ -866,7 +860,7 @@ void Reasoning::DNF() // 计算主析取范式
             {
                 if (DNFmstr.size() == 0)
                 {
-                    DNFmstr += " \\sum m(";
+                    DNFmstr += " ∑ m(";
                 }
                 string num = to_string(i);
                 DNFmstr.append(num);
@@ -889,10 +883,10 @@ void Reasoning::DNF() // 计算主析取范式
                 DNFstr.push_back('\n');
             }
         }
-        DNFmstr.pop_back();
-        DNFmstr.push_back(')');
     }
     DNFstr.pop_back();
+    DNFmstr.pop_back();
+    DNFmstr.push_back(')');
 }
 
 void Reasoning::PrintNF() // 打印主合取、析取范式
@@ -903,6 +897,7 @@ void Reasoning::PrintNF() // 打印主合取、析取范式
     {
         return;
     }
+    cout << "-----------------------------------------";
     cout << endl << "主合取范式:" << endl;
     cout << CNFstr << endl;
     cout << CNFMstr << endl;
@@ -946,6 +941,12 @@ void Reasoning::Setting() // 设置输出选项
         Setting();
     }
     while(getchar()!='\n');
+    if (openTheTruthTable == false && openNF == false && openKanuo == false && openKanuoSimplify == false)
+    {
+        cout << "至少选择一个输出选项" << endl;
+        Setting();
+    }
+    cout << "----------------------------------------------------------------------";
 }
 
 void Reasoning::Run()
@@ -958,6 +959,7 @@ void Reasoning::Run()
     cout << "示例输入:(A`(B+C`))`(A+B`+C) 或 (A`(B+C`))`*(A+B`+C)" << endl;
     cout << "示例输入:F(x,y,z)=∑ m(2,3,5,7)或F(x,y,z)=∏ M(2,3,5,7)" << endl;
 
+    cout << "-------------------------------------------------------------------------------";
     while (1)
     {
         Input();
@@ -982,17 +984,19 @@ void Reasoning::Run()
         {
             QM(); // 生成卡诺图化简
         }
+        cout << "-------------------------------------------------------------------------------";
     }
 }
 
 void Reasoning::MakeKanuo() // 生成卡诺图
 {
+    cout << "-----------------------------------------" << endl;
     if (Argnum != 3 && Argnum != 4)
     {
         cout << "不支持" << Argnum << "个变元的卡诺图" << endl;
+        return;
     }
-
-    cout << endl << "卡诺图:" << endl;
+    cout << "卡诺图:" << endl;
     if (Argnum == 3)
     {
         cout << ArgName[0] << ArgName[1] << "\\" << ArgName[2] << "\t 0 \t 1" << endl;
@@ -1099,17 +1103,18 @@ int Reasoning::CountDashes(const string& str) // 计算字符串中'-'的个数
 
 void Reasoning::QM() // 卡诺图化简
 {
+    cout << "-----------------------------------------" << endl;
     if (DNFstr == "F")
     {
-        cout << endl << "卡诺图化简结果: 该命题为重言式,无需化简" << endl;
+        cout << "卡诺图化简结果: 该命题为重言式,无需化简" << endl;
         return;
     }
     else if (CNFstr == "T")
     {
-        cout << endl << "卡诺图化简结果: 该命题为永真式,无需化简" << endl;
+        cout << "卡诺图化简结果: 该命题为永真式,无需化简" << endl;
         return;
     }
-    else if (DNFstr.size() == 0)
+    if (DNFstr.size() == 0)
     {
         bool alltrue = true;
         bool allfalse = true;
@@ -1126,14 +1131,20 @@ void Reasoning::QM() // 卡诺图化简
         }
         if (alltrue)
         {
-            cout << endl << "卡诺图化简结果: 该命题为永真式,无需化简" << endl;
+            cout << "卡诺图化简结果: 该命题为永真式,无需化简" << endl;
             return;
         }
         if (allfalse)
         {
-            cout << endl << "卡诺图化简结果: 该命题为重言式,无需化简" << endl;
+            cout << "卡诺图化简结果: 该命题为重言式,无需化简" << endl;
             return;
         }
+    }
+
+    if (Argnum == 1)
+    {
+        cout << "卡诺图化简结果: 该命题为单变元命题,无需化简" << endl;
+        return;
     }
 
     vector<vector<string>> groups;
@@ -1219,7 +1230,7 @@ void Reasoning::QM() // 卡诺图化简
         kanuo.pop_back();
     }
 
-    cout << endl << "卡诺图化简结果: " << kanuo << endl;
+    cout << "卡诺图化简结果: " << kanuo << endl;
 }
 
 vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups) // 合并项
