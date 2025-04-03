@@ -945,6 +945,7 @@ void Reasoning::Setting() // 设置输出选项
         while (getchar() != '\n');
         Setting();
     }
+    while(getchar()!='\n');
 }
 
 void Reasoning::Run()
