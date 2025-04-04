@@ -6,9 +6,13 @@
 #include <unordered_map>
 #include <math.h>
 
+#include "operations.h"
+
 using namespace std;
 
-class Reasoning
+class Operations; // 前向声明
+
+class Reasoning:Operations
 {
 private:
     string initialinput; // 初始输入
@@ -43,23 +47,12 @@ public:
     void Init();
     void Input();
     void FindArg();
-    int FindLeft(const string& temp);
-    int FindRight(const string& temp);
+    void Setting();
 
     void BuildHashTable(); // 建立哈希表
 
     int CalculateValue(int n);
-    void DToB(int n, int bin[]);
     void Cal();
-
-    char Not(char A);
-    char And(char A, char B);
-    char Or(char A, char B);
-    char If(char A, char B);
-    char Iff(char A, char B);
-    char Xor(char A, char B);
-    char Nand(char A, char B);
-    char Nor(char A, char B);
 
     void MakeTable();
     void CNF(); // 主合取范式
@@ -68,16 +61,10 @@ public:
 
     void MakeKanuo();
 
-    int Countone(string terms);
-    bool IfNear(const string& a, const string& b);
-    string Combine(const string& a, const string& b);
-    int CountDashes(const string& str);
     void QM();
     vector<vector<string>> QMCombine(const vector<vector<string>>& groups);
 
-    void Setting();
     void Run();
-
 };
 
 

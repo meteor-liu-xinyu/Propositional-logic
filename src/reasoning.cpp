@@ -362,139 +362,27 @@ void Reasoning::BuildHashTable()
     int bin[Argnum] = {0};
     for (int i = 0; i < powArgnum; i++)
     {
-        DToB(i, bin);
         string binstr;
         for (int j = 0; j < Argnum; j++)
         {
-            binstr.push_back(bin[Argnum-j-1] + '0'); // 将二进制数转换为字符串
+            bin[j] = (i >> (Argnum - j - 1)) & 1; // 计算二进制数
+            if (bin[j] == 1)
+            {
+                binstr.push_back('1');
+            }
+            else
+            {
+                binstr.push_back('0');
+            }
         }
         ToBin[i] = binstr;
         ToDec[binstr] = i;
     }
 }
 
-int Reasoning::FindRight(const string& temp) // 找到0开始第一个右括号的位置
-{
-    int i = 0;
-    while (temp[i] != ')')
-    {
-        i++;
-    }
-    return i;
-}
-
-int Reasoning::FindLeft(const string& temp) // 找到0开始第一个右括号对应的左括号的位置
-{
-    int i = FindRight(temp); // 找到0开始第一个右括号的位置
-    while (temp[i] != '(')
-    {
-        i--;
-    }
-    return i;
-}
-
-void Reasoning::DToB(int n, int bin[]) // 将十进制数n转换为二进制数，存入bin数组中
-{
-    for (int i = 0; i < Argnum; i++)
-    {
-        bin[i] = 0;
-    }
-    int count = 0;
-    while (n > 0)
-    {
-        bin[count++] = n % 2;
-        n = n / 2;
-    }
-}
-
-char Reasoning::Not(char A)
-{
-    if (A == 'T')
-    {
-        return 'F';
-    }
-    else
-    {
-        return 'T';
-    }
-}
-
-char Reasoning::And(char A, char B)
-{
-    if (A == 'T' && B == 'T')
-    {
-        return 'T';
-    }
-    else
-    {
-        return 'F';
-    }
-}
-
-char Reasoning::Or(char A, char B)
-{
-    if (A == 'T' || B == 'T')
-    {
-        return 'T';
-    }
-    else
-    {
-        return 'F';
-    }
-}
-
-char Reasoning::If(char A, char B)
-{
-    if (A == 'T' && B == 'F')
-    {
-        return 'F';
-    }
-    else
-    {
-        return 'T';
-    }
-
-}
-
-char Reasoning::Iff(char A, char B) // 双条件
-{
-    if (A == B)
-    {
-        return 'T';
-    }
-    else
-    {
-        return 'F';
-    }
-}
-
-char Reasoning::Xor(char A, char B) // 异或
-{
-    if (A != B)
-    {
-        return 'T';
-    }
-    else
-    {
-        return 'F';
-    }
-}
-
-char Reasoning::Nand(char A, char B) // 与非
-{
-    return Not(And(A, B));
-}
-
-char Reasoning::Nor(char A, char B) // 或非
-{
-    return Not(Or(A, B));
-}
-
 int Reasoning::CalculateValue(int n) // 计算真值表n行的真值
 {
-    // 将十进制数n转换为二进制数，存入bin数组中
-    int bin[Argnum] = {0};
-    DToB(n, bin);
+    string binstr = ToBin[n]; // 获取二进制数
 
     // 用T/F替换ArgName对应的值,存入temp中
     string temp = input;
@@ -504,7 +392,7 @@ int Reasoning::CalculateValue(int n) // 计算真值表n行的真值
         {
             if (temp[i] == ArgName[j])
             {
-                if (bin[Argnum-j-1] == 1)
+                if (binstr[j] == '1')
                 {
                     temp[i] = 'T';
                 }
@@ -700,11 +588,10 @@ void Reasoning::MakeTable() // 打印真值表
 
     for (int i = 0; i < powArgnum; i++)
     {
-        int bin[Argnum] = {0};
-        DToB(i, bin);
-        for (int j = Argnum-1; j >= 0; j--)
+        string binstr = ToBin[i]; // 获取二进制数
+        for (int j = 0; j < Argnum; j++)
         {
-            cout << bin[j] << "\t";
+            cout << binstr[j] << "\t";
         }
         if (initialinput.size() >= 15)
         {
@@ -755,11 +642,10 @@ void Reasoning::CNF() // 计算主合取范式
                 CNFMstr.append(num);
                 CNFMstr.push_back(',');
                 CNFstr.push_back('(');
-                int bin[Argnum] = {0};
-                DToB(i, bin);
+                string binstr = ToBin[i]; // 获取二进制数
                 for (int j = 0; j < Argnum; j++)
                 {
-                    if (bin[Argnum-j-1] == 1)
+                    if (binstr[j] == '1')
                     {
                         CNFstr.push_back('~');
                     }
@@ -794,12 +680,11 @@ void Reasoning::CNF() // 计算主合取范式
                 CNFMstr.append(num);
                 CNFMstr.push_back(',');
                 CNFstr.push_back('(');
-                int bin[Argnum] = {0};
-                DToB(i, bin);
+                string binstr = ToBin[i]; // 获取二进制数
                 for (int j = 0; j < Argnum; j++)
                 {
                     CNFstr.push_back(ArgName[j]);
-                    if (bin[Argnum-j-1] == 1)
+                    if (binstr[j] == '1')
                     {
                         CNFstr.push_back('`');
                     }
@@ -859,11 +744,10 @@ void Reasoning::DNF() // 计算主析取范式
                 DNFmstr.append(num);
                 DNFmstr.push_back(',');
                 DNFstr.push_back('(');
-                int bin[Argnum] = {0};
-                DToB(i, bin);
+                string binstr = ToBin[i]; // 获取二进制数
                 for (int j = 0; j < Argnum; j++)
                 {
-                    if (bin[Argnum-j-1] == 0)
+                    if (binstr[j] == '0')
                     {
                         DNFstr.push_back('~');
                     }
@@ -896,12 +780,11 @@ void Reasoning::DNF() // 计算主析取范式
                 string num = to_string(i);
                 DNFmstr.append(num);
                 DNFmstr.push_back(',');
-                int bin[Argnum] = {0};
-                DToB(i, bin);
+                string binstr = ToBin[i]; // 获取二进制数
                 for (int j = 0; j < Argnum; j++)
                 {
                     DNFstr.push_back(ArgName[j]);
-                    if (bin[Argnum-j-1] == 0)
+                    if (binstr[j] == '0')
                     {
                         DNFstr.push_back('`');
                     }
@@ -1080,62 +963,6 @@ void Reasoning::MakeKanuo() // 生成卡诺图
             cout << endl;
         }
     }
-}
-
-int Reasoning::Countone(string terms) // 计算字符串中1的个数
-{
-    int count = 0;
-    for (const auto& term : terms)
-    {
-        if (term == '1')
-        {
-            count++;
-        }
-    }
-    return count;
-}
-
-bool Reasoning::IfNear(const string& a, const string& b) // 判断两个字符串是否只有一位不同
-{
-    int diffCount = 0;
-    for (int i = 0; i < a.size(); i++)
-    {
-        if (a[i] != b[i])
-        {
-            diffCount++;
-        }
-        if (diffCount > 1)
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-string Reasoning::Combine(const string& a, const string& b) // 合并两个字符串，将不同的位置替换为'-'
-{
-    string combined = a;
-    for (int i = 0; i < a.size(); i++)
-    {
-        if (a[i] != b[i])
-        {
-            combined[i] = '-';
-        }
-    }
-    return combined;
-}
-
-int Reasoning::CountDashes(const string& str) // 计算字符串中'-'的个数
-{
-    int count = 0;
-    for (int i = 0; i < str.size(); i++)
-    {
-        if (str[i] == '-')
-        {
-            count++;
-        }
-    }
-    return count;
 }
 
 void Reasoning::QM() // 卡诺图化简
