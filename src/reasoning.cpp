@@ -1,5 +1,4 @@
 #include "reasoning.h"
-#include <math.h>
 
 Reasoning::Reasoning()
 {
@@ -36,6 +35,7 @@ void Reasoning::Input()
 
     cout << endl << "请输入：";
     getline(cin, input);
+    // input = "F(x,y,z)=∑(0,2,3,4,5,7)"; // !测试用例
     cout << endl;
     for (int i = 0; i < input.length(); i++)
     {
@@ -340,6 +340,8 @@ void Reasoning::FindArg()
         input.erase(0, i+2); // 删除如(a,B,c,d)= 的部分
     }
 
+    powArgnum = pow(2, Argnum); // 计算2^Argnum
+
     // 按字母顺序重排
     for (int i = 0; i < Argnum; i++)
     {
@@ -352,6 +354,22 @@ void Reasoning::FindArg()
                 ArgName[j] = temp;
             }
         }
+    }
+}
+
+void Reasoning::BuildHashTable()
+{
+    int bin[Argnum] = {0};
+    for (int i = 0; i < powArgnum; i++)
+    {
+        DToB(i, bin);
+        string binstr;
+        for (int j = 0; j < Argnum; j++)
+        {
+            binstr.push_back(bin[Argnum-j-1] + '0'); // 将二进制数转换为字符串
+        }
+        ToBin[i] = binstr;
+        ToDec[binstr] = i;
     }
 }
 
@@ -603,14 +621,14 @@ void Reasoning::Cal() // 计算真值表
     {
         if (input[0] == 'M' && input[1] == '(' && mode == 3)
         {
-            for (int i = 0; i < pow(2, Argnum); i++)
+            for (int i = 0; i < powArgnum; i++)
             {
                 Value.push_back(1);
             }
         }
         else if (input[0] == 'm' && input[1] == '(' && mode == 4)
         {
-            for (int i = 0; i < pow(2, Argnum); i++)
+            for (int i = 0; i < powArgnum; i++)
             {
                 Value.push_back(0);
             }
@@ -649,7 +667,7 @@ void Reasoning::Cal() // 计算真值表
 
         mode = 2; // 化归位mode2的情况
 
-        for (int i = 0; i < pow(2, Argnum); i++)
+        for (int i = 0; i < powArgnum; i++)
         {
             if (Value[i] == 1)
             {
@@ -659,7 +677,7 @@ void Reasoning::Cal() // 计算真值表
     }
     else
     {
-        for (int i = 0; i < pow(2, Argnum); i++)
+        for (int i = 0; i < powArgnum; i++)
         {
             Value.push_back(CalculateValue(i));
             if (Value[i] == 1)
@@ -680,7 +698,7 @@ void Reasoning::MakeTable() // 打印真值表
     }
     cout << initialinput << endl;
 
-    for (int i = 0; i < pow(2, Argnum); i++)
+    for (int i = 0; i < powArgnum; i++)
     {
         int bin[Argnum] = {0};
         DToB(i, bin);
@@ -725,7 +743,7 @@ void Reasoning::CNF() // 计算主合取范式
     int count = 0;
     if (mode == 1)
     {
-        for (int i = 0; i < pow(2, Argnum); i++)
+        for (int i = 0; i < powArgnum; i++)
         {
             if (Value[i] == 0)
             {
@@ -764,7 +782,7 @@ void Reasoning::CNF() // 计算主合取范式
     }
     else if (mode == 2)
     {
-        for (int i = 0; i < pow(2, Argnum); i++)
+        for (int i = 0; i < powArgnum; i++)
         {
             if (Value[i] == 0)
             {
@@ -829,7 +847,7 @@ void Reasoning::DNF() // 计算主析取范式
     int count = 0;
     if (mode == 1)
     {
-        for (int i = 0; i < pow(2, Argnum); i++)
+        for (int i = 0; i < powArgnum; i++)
         {
             if (Value[i] == 1)
             {
@@ -867,7 +885,7 @@ void Reasoning::DNF() // 计算主析取范式
     }
     else if (mode == 2)
     {
-        for (int i = 0; i < pow(2, Argnum); i++)
+        for (int i = 0; i < powArgnum; i++)
         {
             if (Value[i] == 1)
             {
@@ -986,6 +1004,7 @@ void Reasoning::Run()
             break;
         }
         Cal();
+        BuildHashTable();
         if (openTheTruthTable)
         {
             MakeTable(); // 生成真值表
@@ -1174,16 +1193,9 @@ void Reasoning::QM() // 卡诺图化简
 
     for (int i = 0; i < PI.size(); i++)
     {
-        // 将PI转为二进制字符串
-        string binstr;
-        int bin[Argnum] = {0};
-        DToB(PI[i], bin);
-        for (int j = 0; j < Argnum; ++j)
-        {
-            binstr += to_string(bin[Argnum-j-1]);
-        }
         // 将二进制字符串添加到对应的组中
-        groups[Countone(binstr)].push_back(binstr);
+        string temp = ToBin[PI[i]];
+        groups[Countone(temp)].push_back(temp);
     }
 
     while (!endinter) // 循环合并项
@@ -1192,19 +1204,160 @@ void Reasoning::QM() // 卡诺图化简
     }
 
     // 生成最终PI
+    int finalPIsize = 0;
     vector<string> finalPI;
     for (const auto& group : groups)
     {
         for (const auto& term : group)
         {
             finalPI.push_back(term);
+            finalPIsize++;
         }
     }
 
-    // 从最终PI生成卡诺图化简结果
+    // 去除不必要的项
+    vector<vector<int>> table; // 基本蕴含项表
+    vector<int> row(pow(2,Argnum),0);
+    for (int i = 0; i < finalPIsize; i++)
+    {
+        table.push_back(row);
+        int dashenum = CountDashes(finalPI[i]);
+        int num[2*dashenum] = {0};
+        for (int j = 0; j < Argnum; j++)
+        {
+            if (finalPI[i][j] == '-')
+            {
+                for (int k = 0; k < dashenum; k++)
+                {
+                    num[k] += pow(2,Argnum-j-1);
+                }
+            }
+            else if (finalPI[i][j] == '1')
+            {
+                for (int k = 0; k < dashenum*2; k++)
+                {
+                    num[k] += pow(2,Argnum-j-1);
+                }
+            }
+        }
+        for (int j = 0; j < dashenum*2; j++)
+        {
+            table[i][num[j]] = 1;
+        }
+    }
+
+    int tempEPI = 0;
+    unordered_map<int, int> hashTable;
+    for ( int i = 0; i < finalPIsize; i++)
+    {
+        hashTable[i] = -i-1;
+    }
+    for (int i = 0; i < pow(2,Argnum); i++)
+    {
+        int count = 0;
+        for (int j = 0; j < finalPIsize; j++)
+        {
+            if (table[j][i] == 1)
+            {
+                tempEPI = j;
+                count ++;
+            }
+        }
+        if (count == 1)
+        {
+            hashTable[tempEPI] = tempEPI;
+        }
+    }
+
+    bool flag = false;
+    for (int i = 0; i < finalPIsize; i++)
+    {
+        if (hashTable[i] >= 0)
+        {
+            flag = true;
+        }
+    }
+    if (!flag)
+    {
+        hashTable[0] = 0;
+    }
+
+    for (int i = 0; i < finalPIsize; i++)
+    {
+        if (hashTable[i] >= 0) // 是基本蕴含项
+        {
+            for (int j = table[0].size()-1; j >= 0; j--)
+            {
+                if (table[i][j] == 1)
+                {
+                    // 删除该列
+                    for (int k = finalPIsize-1; k >= 0; k--)
+                    {
+                        table[k].erase(table[k].begin() + j);
+                    }
+                }
+            }
+        }
+    }
+
+    // 去除不必要的项
+    while (1)
+    {
+        int temprownum = 0;
+        int tempcount = 0;
+        for (int i = 0; i < finalPIsize; i++)
+        {
+            int count = 0;
+            if (hashTable[i] >= 0)
+            {
+                continue; // 是基本蕴含项
+            }
+            // 不是基本蕴含项
+            for (int j = 0; j < table[0].size(); j++)
+            {
+                if (table[i][j] == 1)
+                {
+                    count ++;
+                }
+            }
+
+            if (count > tempcount)
+            {
+                tempcount = count;
+                temprownum = i;
+            }
+        }
+        if (tempcount == 0)
+        {
+            break;
+        }
+        hashTable[temprownum] = temprownum; // 更改为基本蕴含项
+        for (int j = table[0].size()-1; j >= 0; j--)
+        {
+            if (table[temprownum][j] == 1)
+            {
+                // 删除该列
+                for (int k = finalPIsize-1; k >= 0; k--)
+                {
+                    table[k].erase(table[k].begin() + j);
+                }
+            }
+        }
+    }
+
+    vector<string> finalEPI; // 存储最终的基本蕴含项
+    for (int i = 0; i < finalPIsize; i++)
+    {
+        if (hashTable[i] >= 0)
+        {
+            finalEPI.push_back(finalPI[i]);
+        }
+    }
+
+    // 从finalEPI中计算kanuo化简结果
     if (mode == 1)
     {
-        for (const auto& term : finalPI)
+        for (const auto& term : finalEPI)
         {
             kanuo.push_back('(');
             for (int i = 0; i < term.size(); i++)
@@ -1229,7 +1382,7 @@ void Reasoning::QM() // 卡诺图化简
     }
     else if (mode == 2)
     {
-        for (const auto& term : finalPI)
+        for (const auto& term : finalEPI)
         {
             for (int i = 0; i < term.size(); i++)
             {

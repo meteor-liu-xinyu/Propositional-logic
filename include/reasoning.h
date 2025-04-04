@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include <vector>
+#include <unordered_map>
+#include <math.h>
+
 using namespace std;
 
 class Reasoning
@@ -12,6 +15,7 @@ private:
     string input;
     vector<char> ArgName; // 命题变元名
     int Argnum; // 命题变元个数
+    int powArgnum; // 2^Argnum
     vector<int> Value; // 真值
     string CNFstr; // 主合取范式
     string DNFstr; // 主析取范式
@@ -30,6 +34,9 @@ private:
     vector<int> PI;
     bool endinter; // 是否结束QM合并循环
 
+    unordered_map<string, int> ToDec; // 哈希表
+    unordered_map<int, string> ToBin; // 哈希表
+
 public:
     Reasoning();
     ~Reasoning();
@@ -38,6 +45,8 @@ public:
     void FindArg();
     int FindLeft(const string& temp);
     int FindRight(const string& temp);
+
+    void BuildHashTable(); // 建立哈希表
 
     int CalculateValue(int n);
     void DToB(int n, int bin[]);
