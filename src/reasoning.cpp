@@ -37,6 +37,7 @@ void Reasoning::Input()
     getline(cin, input);
     // input = "(A+B`)(A+C)"; // !测试用例
     // input = "F(x,y,z)=∑(0,2,3,4,5,7)"; // !测试用例
+    // input = "F(a,b,c,d)=∑(1,3,4,5,7,8,9,11,15)"; // !测试用例
     cout << endl;
     for (int i = 0; i < input.length(); i++)
     {
@@ -1044,31 +1045,38 @@ void Reasoning::QM() // 卡诺图化简
     // 去除不必要的项
     vector<vector<int>> table; // 基本蕴含项表
     vector<int> row(pow(2,Argnum),0);
+    vector<string> bin;
+    for (int i = 0; i < pow(2,Argnum); i++)
+    {
+        bin.push_back(ToBin[i]);
+    }
     for (int i = 0; i < finalPIsize; i++)
     {
         table.push_back(row);
-        int dashenum = CountDashes(finalPI[i]);
-        int num[2*dashenum] = {0};
-        for (int j = 0; j < Argnum; j++)
+        for (int j = 0; j < pow(2,Argnum); j++)
         {
-            if (finalPI[i][j] == '-')
+            bool flag = true;
+            for (int k = 0; k < Argnum; k++)
             {
-                for (int k = 0; k < dashenum; k++)
+                if (finalPI[i][k] == '1' && bin[j][k] == '0')
                 {
-                    num[k] += pow(2,Argnum-j-1);
+                    flag = false;
+                    break; // 不满足
+                }
+                else if (finalPI[i][k] == '0' && bin[j][k] == '1')
+                {
+                    flag = false;
+                    break; // 不满足
                 }
             }
-            else if (finalPI[i][j] == '1')
+            if (flag)
             {
-                for (int k = 0; k < dashenum*2; k++)
-                {
-                    num[k] += pow(2,Argnum-j-1);
-                }
+                table[i][j] = 1;
             }
-        }
-        for (int j = 0; j < dashenum*2; j++)
-        {
-            table[i][num[j]] = 1;
+            else
+            {
+                table[i][j] = 0;
+            }
         }
     }
 
