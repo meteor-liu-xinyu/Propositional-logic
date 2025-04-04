@@ -314,6 +314,10 @@ void Reasoning::FindArg()
                 skip = true;
                 return;
             }
+            if (input[i] == 'v')
+            {
+                input[i] = 'V';
+            }
             if (input[i] >= 'A' && input[i] <= 'Z')
             {
                 // 如果当前字符已经在ArgName中，则跳过
