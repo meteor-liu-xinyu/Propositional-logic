@@ -35,6 +35,7 @@ void Reasoning::Input()
 
     cout << endl << "请输入：";
     getline(cin, input);
+    // input = "(A+B`)(A+C)"; // !测试用例
     // input = "F(x,y,z)=∑(0,2,3,4,5,7)"; // !测试用例
     cout << endl;
     for (int i = 0; i < input.length(); i++)
@@ -359,21 +360,19 @@ void Reasoning::FindArg()
 
 void Reasoning::BuildHashTable()
 {
-    int bin[Argnum] = {0};
     for (int i = 0; i < powArgnum; i++)
     {
         string binstr;
         for (int j = 0; j < Argnum; j++)
         {
-            bin[j] = (i >> (Argnum - j - 1)) & 1; // 计算二进制数
-            if (bin[j] == 1)
-            {
-                binstr.push_back('1');
-            }
-            else
-            {
-                binstr.push_back('0');
-            }
+            binstr += (i >> j) & 1 ? '1' : '0'; // 将十进制数转换为二进制数
+        }
+        // 反转字符串
+        for (int j = 0; j < binstr.length() / 2; j++)
+        {
+            char temp = binstr[j];
+            binstr[j] = binstr[binstr.length() - j - 1];
+            binstr[binstr.length() - j - 1] = temp;
         }
         ToBin[i] = binstr;
         ToDec[binstr] = i;
@@ -886,8 +885,8 @@ void Reasoning::Run()
         {
             break;
         }
-        Cal();
         BuildHashTable();
+        Cal();
         if (openTheTruthTable)
         {
             MakeTable(); // 生成真值表
