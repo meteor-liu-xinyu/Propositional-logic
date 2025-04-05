@@ -56,6 +56,8 @@ public:
     void Cal();
 
     void MakeTable();
+
+    void NF();
     void CNF(); // 主合取范式
     void DNF(); // 主析取范式
     void PrintNF();

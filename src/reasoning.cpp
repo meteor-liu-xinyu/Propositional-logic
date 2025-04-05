@@ -36,7 +36,6 @@ void Reasoning::Input()
     cout << endl << "请输入：";
     getline(cin, input);
     // input = "(A+B`)(A+C)"; // !测试用例
-    // input = "F(x,y,z)=∑(0,2,3,4,5,7)"; // !测试用例
     // input = "F(a,b,c,d)=∑(1,3,4,5,7,8,9,11,15)"; // !测试用例
     cout << endl;
     for (int i = 0; i < input.length(); i++)
@@ -177,6 +176,7 @@ void Reasoning::Input()
         }
     }
 
+    int temp = 0;
     if (mode != 3 && mode != 4)
     {
         for (int i = 0; i < input.length(); i++) // 检查是否有符号混用,同时设置mode
@@ -207,6 +207,15 @@ void Reasoning::Input()
                     return;
                 }
             }
+            else if (input[i] == '>' || input[i] == '<' || input[i] == '@' || input[i] == '[' || input[i] == ']')
+            {
+                temp = 1;
+            }
+            
+        }
+        if (mode == 0 && temp == 1)
+        {
+            mode = 1; // 默认
         }
         if (mode == 0)
         {
@@ -609,18 +618,27 @@ void Reasoning::MakeTable() // 打印真值表
     }
 }
 
-void Reasoning::CNF() // 计算主合取范式
+void Reasoning::NF()
 {
     if (Argnum < 2) // 只有一个变量时,不输出
     {
         return;
     }
+
     bool alltrue = true; // 判断是否为永真式
+    bool allfalse = true; // 判断是否为重言式
     for (const auto& i : Value)
     {
         if (i == 0)
         {
             alltrue = false;
+        }
+        else
+        {
+            allfalse = false;
+        }
+        if (!alltrue && !allfalse) // 既不是永真式也不是重言式
+        {
             break;
         }
     }
@@ -630,102 +648,6 @@ void Reasoning::CNF() // 计算主合取范式
         CNFMstr = 'T';
         return;
     }
-
-    int count = 0;
-    if (mode == 1)
-    {
-        for (int i = 0; i < powArgnum; i++)
-        {
-            if (Value[i] == 0)
-            {
-                if (CNFMstr.size() == 0)
-                {
-                    CNFMstr += " ∏ M(";
-                }
-                string num = to_string(i);
-                CNFMstr.append(num);
-                CNFMstr.push_back(',');
-                CNFstr.push_back('(');
-                string binstr = ToBin[i]; // 获取二进制数
-                for (int j = 0; j < Argnum; j++)
-                {
-                    if (binstr[j] == '1')
-                    {
-                        CNFstr.push_back('~');
-                    }
-                    CNFstr.push_back(ArgName[j]);
-                    if (j != Argnum-1)
-                    {
-                        CNFstr.push_back('v');
-                    }
-                }
-                CNFstr.push_back(')');
-                CNFstr.push_back('^');
-                count++;
-            }
-            if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n' && count != 0)
-            {
-                CNFstr.push_back('\n');
-            }
-        }
-        CNFstr.pop_back();
-    }
-    else if (mode == 2)
-    {
-        for (int i = 0; i < powArgnum; i++)
-        {
-            if (Value[i] == 0)
-            {
-                if (CNFMstr.size() == 0)
-                {
-                    CNFMstr += " ∏ M(";
-                }
-                string num = to_string(i);
-                CNFMstr.append(num);
-                CNFMstr.push_back(',');
-                CNFstr.push_back('(');
-                string binstr = ToBin[i]; // 获取二进制数
-                for (int j = 0; j < Argnum; j++)
-                {
-                    CNFstr.push_back(ArgName[j]);
-                    if (binstr[j] == '1')
-                    {
-                        CNFstr.push_back('`');
-                    }
-                    if (j != Argnum-1)
-                    {
-                        CNFstr.push_back('+');
-                    }
-                }
-                CNFstr.push_back(')');
-                count++;
-            }
-            if (count % 8 == 0 && CNFstr[CNFstr.length()-1] != '\n' && count != 0)
-            {
-                CNFstr.push_back('\n');
-            }
-        }
-    }
-    CNFMstr.pop_back();
-    CNFMstr.push_back(')');
-}
-
-void Reasoning::DNF() // 计算主析取范式
-{
-    if (Argnum < 2) // 只有一个变量时,不输出
-    {
-        return;
-    }
-
-    bool allfalse = true; // 判断是否为重言式
-    for (const auto& i : Value)
-    {
-        if (i == 1)
-        {
-            allfalse = false;
-            break;
-        }
-    }
     if (allfalse)
     {
         DNFstr = 'F';
@@ -733,84 +655,114 @@ void Reasoning::DNF() // 计算主析取范式
         return;
     }
 
+    string NFstr[2] = {};
+    string NFMstr[2] = {"∏ M(","∑ m("};
+
     int count = 0;
+    for (int i = 0; i < powArgnum; i++)
+    {
+        string num = to_string(i);
+        string binstr = ToBin[i]; // 获取二进制数
+        NFMstr[Value[i]].append(num);
+        NFMstr[Value[i]].push_back(',');
+        if (Value[i] == 0)
+        {
+            NFstr[0].push_back('(');
+        }
+        else if (Value[i] == 1 && mode == 1)
+        {
+            NFstr[1].push_back('(');
+        }
+        for (int j = 0; j < Argnum; j++)
+        {
+            if (binstr[j] == ('1'-Value[i]) && mode == 1)
+            {
+                NFstr[Value[i]].push_back('~');
+            }
+            NFstr[Value[i]].push_back(ArgName[j]);
+            if (binstr[j] == ('1'-Value[i]) && mode == 2)
+            {
+                NFstr[Value[i]].push_back('`');
+            }
+            if (j != Argnum-1)
+            {
+                if (mode == 1)
+                {
+                    if (Value[i] == 0)
+                    {
+                        NFstr[0].push_back('v');
+                    }
+                    else // Value[i] == 1
+                    {
+                        NFstr[1].push_back('^');
+                    }
+                }
+                else // mode == 2
+                {
+                    if (Value[i] == 0)
+                    {
+                        NFstr[0].push_back('+');
+                    }
+                    else // Value[i] == 1
+                    {
+                    }
+                }
+            }
+        }
+        if (Value[i] == 0)
+        {
+            NFstr[0].push_back(')');
+            if (mode == 1)
+            {
+                NFstr[0].push_back('^');
+            }
+        }
+        else // Value[i] == 1
+        {
+            if (mode == 1)
+            {
+                NFstr[1].push_back(')');
+                NFstr[1].push_back('v');
+            }
+            else
+            {
+                NFstr[1].push_back('+');
+            }
+        }
+        count++;
+        if (count % 8 == 0 && count != 0)
+        {
+            if (NFstr[0][NFstr[0].length()-1] != '\n')
+            {
+                NFstr[0].push_back('\n');
+            }
+            else // DNFstr[DNFstr.length()-1] != '\n'
+            {
+                NFstr[1].push_back('\n');
+            }
+        }
+    }
     if (mode == 1)
     {
-        for (int i = 0; i < powArgnum; i++)
-        {
-            if (Value[i] == 1)
-            {
-                if (DNFmstr.size() == 0)
-                {
-                    DNFmstr += " ∑ m(";
-                }
-                string num = to_string(i);
-                DNFmstr.append(num);
-                DNFmstr.push_back(',');
-                DNFstr.push_back('(');
-                string binstr = ToBin[i]; // 获取二进制数
-                for (int j = 0; j < Argnum; j++)
-                {
-                    if (binstr[j] == '0')
-                    {
-                        DNFstr.push_back('~');
-                    }
-                    DNFstr.push_back(ArgName[j]);
-                    if (j != Argnum-1)
-                    {
-                        DNFstr.push_back('^');
-                    }
-                }
-                DNFstr.push_back(')');
-                DNFstr.push_back('v');
-                count++;
-            }
-            if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n' && count != 0)
-            {
-                DNFstr.push_back('\n');
-            }
-        }
+        NFstr[0].pop_back();
     }
-    else if (mode == 2)
-    {
-        for (int i = 0; i < powArgnum; i++)
-        {
-            if (Value[i] == 1)
-            {
-                if (DNFmstr.size() == 0)
-                {
-                    DNFmstr += " ∑ m(";
-                }
-                string num = to_string(i);
-                DNFmstr.append(num);
-                DNFmstr.push_back(',');
-                string binstr = ToBin[i]; // 获取二进制数
-                for (int j = 0; j < Argnum; j++)
-                {
-                    DNFstr.push_back(ArgName[j]);
-                    if (binstr[j] == '0')
-                    {
-                        DNFstr.push_back('`');
-                    }
-                }
-                DNFstr.push_back('+');
-                count++;
-            }
-            if (count % 8 == 0 && DNFstr[DNFstr.length()-1] != '\n' && count != 0)
-            {
-                DNFstr.push_back('\n');
-            }
-        }
-    }
-    DNFstr.pop_back();
-    DNFmstr.pop_back();
-    DNFmstr.push_back(')');
+    NFstr[0].pop_back();
+    NFMstr[0].pop_back();
+    NFMstr[0].push_back(')');
+    
+    NFstr[1].pop_back();
+    NFMstr[1].pop_back();
+    NFMstr[1].push_back(')');
+
+    CNFstr = NFstr[0];
+    CNFMstr = NFMstr[0];
+    DNFstr = NFstr[1];
+    DNFmstr = NFMstr[1];
 }
 
 void Reasoning::PrintNF() // 打印主合取、析取范式
 {
-    CNF(); // 生成CNF
-    DNF(); // 生成DNF
+    NF();
     if (CNFstr.size() == 0 && DNFstr.size() == 0) // 如果没有内容，则不输出
     {
         return;
