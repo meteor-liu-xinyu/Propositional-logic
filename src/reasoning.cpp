@@ -965,15 +965,14 @@ void Reasoning::QM() // 卡诺图化简
     }
     else
     {
-        cout << "卡诺图化简结果: ";
         if (DNFstr == "F")
         {
-            cout << "该命题为重言式,无需化简" << endl;
+            cout << "卡诺图化简结果: 该命题为重言式,无需化简" << endl;
             return;
         }
         else if (CNFstr == "T")
         {
-            cout << "该命题为永真式,无需化简" << endl;
+            cout << "卡诺图化简结果: 该命题为永真式,无需化简" << endl;
             return;
         }
     }
@@ -1023,8 +1022,8 @@ void Reasoning::QM() // 卡诺图化简
                 }
                 cout << endl;
             }
+            cout << endl;
         }
-        cout << endl;
     }
 
     // 生成最终PI
