@@ -938,7 +938,6 @@ void Reasoning::QM() // 卡诺图化简
     }
     if (openNF == false) // 未调用NF()函数，无DNFstr和CNFstr
     {
-        cout << "卡诺图化简结果: ";
         bool alltrue = true;
         bool allfalse = true;
         for (const auto& i : Value)
@@ -958,12 +957,12 @@ void Reasoning::QM() // 卡诺图化简
         }
         if (alltrue)
         {
-            cout << "该命题为永真式,无需化简" << endl;
+            cout << "卡诺图化简结果: 该命题为永真式,无需化简" << endl;
             return;
         }
         if (allfalse)
         {
-            cout << "该命题为重言式,无需化简" << endl;
+            cout << "卡诺图化简结果: 该命题为重言式,无需化简" << endl;
             return;
         }
     }
