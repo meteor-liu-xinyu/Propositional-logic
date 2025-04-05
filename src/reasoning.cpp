@@ -90,7 +90,7 @@ void Reasoning::Input()
         skip = true;
         return;
     }
-    
+
 
     // 将中文括号转换为英文括号
     for (int i = 0; i < input.length(); i++)
@@ -676,14 +676,18 @@ void Reasoning::NF()
         }
         for (int j = 0; j < Argnum; j++)
         {
-            if (binstr[j] == ('1'-Value[i]) && mode == 1)
+            if (binstr[j] == ('1'-Value[i]))
             {
-                NFstr[Value[i]].push_back('~');
-            }
-            NFstr[Value[i]].push_back(ArgName[j]);
-            if (binstr[j] == ('1'-Value[i]) && mode == 2)
-            {
-                NFstr[Value[i]].push_back('`');
+                if (mode == 1)
+                {
+                    NFstr[Value[i]].push_back('~');
+                    NFstr[Value[i]].push_back(ArgName[j]);
+                }
+                else // mode == 2
+                {
+                    NFstr[Value[i]].push_back(ArgName[j]);
+                    NFstr[Value[i]].push_back('`');
+                }
             }
             if (j != Argnum-1)
             {
@@ -1005,7 +1009,7 @@ void Reasoning::QM() // 卡诺图化简
         }
         cout << endl;
     }
-    
+
 
     while (!endinter) // 循环合并项
     {
@@ -1209,51 +1213,51 @@ void Reasoning::QM() // 卡诺图化简
     }
 
     // 从finalEPI中计算kanuo化简结果
-    if (mode == 1)
+    for (const auto& term : finalEPI)
     {
-        for (const auto& term : finalEPI)
+        if (mode == 1 && CountDashes(term) < Argnum-1)
         {
             kanuo.push_back('(');
-            for (int i = 0; i < term.size(); i++)
+        }
+        for (int i = 0; i < term.size(); i++)
+        {
+            if (term[i] == '1')
             {
-                if (term[i] == '1')
-                {
-                    kanuo.push_back(ArgName[i]);
-                    kanuo.push_back('^');
-                }
-                else if (term[i] == '0')
+                kanuo.push_back(ArgName[i]);
+            }
+            else if (term[i] == '0')
+            {
+                if (mode == 1)
                 {
                     kanuo.push_back('~');
                     kanuo.push_back(ArgName[i]);
-                    kanuo.push_back('^');
                 }
-            }
-            kanuo.pop_back();
-            kanuo.push_back(')');
-            kanuo.push_back('v');
-        }
-        kanuo.pop_back();
-    }
-    else if (mode == 2)
-    {
-        for (const auto& term : finalEPI)
-        {
-            for (int i = 0; i < term.size(); i++)
-            {
-                if (term[i] == '1')
-                {
-                    kanuo.push_back(ArgName[i]);
-                }
-                else if (term[i] == '0')
+                else // mode == 2
                 {
                     kanuo.push_back(ArgName[i]);
                     kanuo.push_back('`');
                 }
             }
-            kanuo.push_back('+');
+            if (term[i] != '-' && mode == 1)
+            {
+                kanuo.push_back('^');
+            }
         }
         kanuo.pop_back();
+        if (mode == 1)
+        {
+            if (CountDashes(term) < Argnum-1)
+            {
+                kanuo.push_back(')');
+            }
+            kanuo.push_back('v');
+        }
+        else // mode == 2
+        {
+            kanuo.push_back('+');
+        }
     }
+    kanuo.pop_back();
 
     cout << "卡诺图化简结果: " << kanuo << endl;
 }
