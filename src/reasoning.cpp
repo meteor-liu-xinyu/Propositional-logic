@@ -1243,7 +1243,10 @@ void Reasoning::QM() // 卡诺图化简
                 kanuo.push_back('^');
             }
         }
-        kanuo.pop_back();
+        if (mode == 1)
+        {
+            kanuo.pop_back();
+        }
         if (mode == 1)
         {
             if (CountDashes(term) < Argnum-1)
