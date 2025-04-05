@@ -36,6 +36,8 @@ private:
     bool openKanuo; // 是否输出卡诺图结果
     bool openKanuoSimplify; // 是否输出卡诺图化简结果
 
+    bool testing; // 是否处于测试模式
+
     vector<int> PI;
     bool endinter; // 是否结束QM合并循环
 

@@ -86,12 +86,7 @@ void Reasoning::Input()
             input.insert(i - 2, ")");
             i--;
         }
-    }
-
-    // 将not运算其他符号转为`
-    for (int i = 0; i < input.length(); i++)
-    {
-        if (input[i] == '\'')
+        else if (input[i] == '\'') // 将英文单引号转换为`
         {
             input[i] = '`';
         }
@@ -211,7 +206,7 @@ void Reasoning::Input()
             {
                 temp = 1;
             }
-            
+
         }
         if (mode == 0 && temp == 1)
         {
@@ -242,6 +237,10 @@ void Reasoning::Input()
                     skip = true;
                     return;
                 }
+            }
+            if (input[i] == 'm')
+            {
+                input[i] = 'M';
             }
             if (!(input[i] == '~' || input[i] == '^' || input[i] == 'v' || input[i] == '>' || input[i] == '<' || input[i] == '(' || input[i] == ')' || input[i] == '@' || input[i] == '[' || input[i] == ']' || input[i] == '`' || (input[i] >= 'A' && input[i] <= 'Z' && input[i] != 'V')))
             {
@@ -287,6 +286,8 @@ void Reasoning::Input()
 
 void Reasoning::FindArg()
 {
+    unordered_map<char, bool> If_in_Arg; // 记录命题变元是否在ArgName中
+
     if (mode == 1 || mode == 2)
     {
         for (int i = 0; i < input.length(); i++)
@@ -294,20 +295,11 @@ void Reasoning::FindArg()
             // 跳过符号
             if (input[i] != '~' && input[i] != '^' && input[i] != 'v' && input[i] != '@' && input[i] != '[' && input[i] != ']' && input[i] != '`' &&input[i] != '*' && input[i] != '+' && input[i] != '>' && input[i] != '<' && input[i] != '(' && input[i] != ')')
             {
-                // 如果当前字符已经在ArgName中，则跳过
-                bool flag = true;
-                for (int j = 0; j < ArgName.size(); j++)
-                {
-                    if (input[i] == ArgName[j])
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
-                if (flag == true)
+                if (If_in_Arg[input[i]] == false)
                 {
                     ArgName.push_back(input[i]);
                     Argnum++;
+                    If_in_Arg[input[i]] = true;
                 }
             }
         }
@@ -329,20 +321,11 @@ void Reasoning::FindArg()
             }
             if (input[i] >= 'A' && input[i] <= 'Z')
             {
-                // 如果当前字符已经在ArgName中，则跳过
-                bool flag = true;
-                for (int j = 0; j < ArgName.size(); j++)
-                {
-                    if (input[i] == ArgName[j])
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
-                if (flag == true)
+                if (If_in_Arg[input[i]] == false)
                 {
                     ArgName.push_back(input[i]);
                     Argnum++;
+                    If_in_Arg[input[i]] = true;
                 }
             }
         }
@@ -620,8 +603,9 @@ void Reasoning::MakeTable() // 打印真值表
 
 void Reasoning::NF()
 {
-    if (Argnum < 2) // 只有一个变量时,不输出
+    if (Argnum == 1) // 只有一个变量时,不输出
     {
+        cout << "只有一个变元,不计算范式" << endl;
         return;
     }
 
@@ -665,13 +649,9 @@ void Reasoning::NF()
         string binstr = ToBin[i]; // 获取二进制数
         NFMstr[Value[i]].append(num);
         NFMstr[Value[i]].push_back(',');
-        if (Value[i] == 0)
+        if (!(Value[i] == 1 && mode == 2))
         {
-            NFstr[0].push_back('(');
-        }
-        else if (Value[i] == 1 && mode == 1)
-        {
-            NFstr[1].push_back('(');
+            NFstr[Value[i]].push_back('(');
         }
         for (int j = 0; j < Argnum; j++)
         {
@@ -686,45 +666,47 @@ void Reasoning::NF()
             }
             if (j != Argnum-1)
             {
-                if (mode == 1)
+                if (Value[i] == 0)
                 {
-                    if (Value[i] == 0)
+                    if (mode == 1)
                     {
                         NFstr[0].push_back('v');
                     }
-                    else // Value[i] == 1
-                    {
-                        NFstr[1].push_back('^');
-                    }
-                }
-                else // mode == 2
-                {
-                    if (Value[i] == 0)
+                    else // mode == 2
                     {
                         NFstr[0].push_back('+');
                     }
-                    else // Value[i] == 1
-                    {
-                    }
                 }
+                else // Value[i] == 1
+                {
+                    if (mode == 1)
+                    {
+                        NFstr[1].push_back('^');
+                    }
+                    // mode == 2 不做操作
+                }
+
             }
+        }
+        if (!(Value[i] == 1 && mode == 2))
+        {
+            NFstr[Value[i]].push_back(')');
         }
         if (Value[i] == 0)
         {
-            NFstr[0].push_back(')');
             if (mode == 1)
             {
                 NFstr[0].push_back('^');
             }
+            // mode == 2 不做操作
         }
         else // Value[i] == 1
         {
             if (mode == 1)
             {
-                NFstr[1].push_back(')');
                 NFstr[1].push_back('v');
             }
-            else
+            else // mode == 2
             {
                 NFstr[1].push_back('+');
             }
@@ -749,7 +731,7 @@ void Reasoning::NF()
     NFstr[0].pop_back();
     NFMstr[0].pop_back();
     NFMstr[0].push_back(')');
-    
+
     NFstr[1].pop_back();
     NFMstr[1].pop_back();
     NFMstr[1].push_back(')');
@@ -924,17 +906,13 @@ void Reasoning::MakeKanuo() // 生成卡诺图
 void Reasoning::QM() // 卡诺图化简
 {
     cout << "-----------------------------------------" << endl;
-    if (DNFstr == "F")
+    cout << "卡诺图化简结果: ";
+    if (Argnum == 1)
     {
-        cout << "卡诺图化简结果: 该命题为重言式,无需化简" << endl;
+        cout << "只有一个变元,无需化简" << endl;
         return;
     }
-    else if (CNFstr == "T")
-    {
-        cout << "卡诺图化简结果: 该命题为永真式,无需化简" << endl;
-        return;
-    }
-    if (DNFstr.size() == 0)
+    if (openNF == false) // 未调用NF()函数，无DNFstr和CNFstr
     {
         bool alltrue = true;
         bool allfalse = true;
@@ -944,27 +922,38 @@ void Reasoning::QM() // 卡诺图化简
             {
                 alltrue = false;
             }
-            if (i == 1)
+            else // i == 1
             {
                 allfalse = false;
+            }
+            if (allfalse == false && alltrue == false)
+            {
+                break;
             }
         }
         if (alltrue)
         {
-            cout << "卡诺图化简结果: 该命题为永真式,无需化简" << endl;
+            cout << "该命题为永真式,无需化简" << endl;
             return;
         }
         if (allfalse)
         {
-            cout << "卡诺图化简结果: 该命题为重言式,无需化简" << endl;
+            cout << "该命题为重言式,无需化简" << endl;
             return;
         }
     }
-
-    if (Argnum == 1)
+    else
     {
-        cout << "卡诺图化简结果: 该命题为单变元命题,无需化简" << endl;
-        return;
+        if (DNFstr == "F")
+        {
+            cout << "该命题为重言式,无需化简" << endl;
+            return;
+        }
+        else if (CNFstr == "T")
+        {
+            cout << "该命题为永真式,无需化简" << endl;
+            return;
+        }
     }
 
     vector<vector<string>> groups;
@@ -1191,7 +1180,7 @@ void Reasoning::QM() // 卡诺图化简
         kanuo.pop_back();
     }
 
-    cout << "卡诺图化简结果: " << kanuo << endl;
+    cout << kanuo << endl;
 }
 
 vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups) // 合并项
@@ -1202,6 +1191,17 @@ vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups
     {
         nextgroups.push_back(vector<string>());
     }
+
+    unordered_map<string, bool> If_in_next; // 标记nextgroups中是否已有
+    // 初始化
+    for (const auto& group : groups)
+    {
+        for (const auto& term : group)
+        {
+            If_in_next[term] = false;
+        }
+    }
+
     vector<vector<bool>> used(groups.size(), vector<bool>(groups.size(), false)); // 标记是否被合并
 
     for (int i = 0; i < groups.size()-1; i++) // 两两遍历所有组
@@ -1216,21 +1216,11 @@ vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups
                     string combined = Combine(groups[i][j], groups[i+1][k]);
                     if (CountDashes(combined) == dashesnum+1)
                     {
-                        int onenum = Countone(combined);
                         endinter = false; // 如果有新的合并，则继续合并
-                        // 检查是否已经存在相同的合并项
-                        bool flag = false;
-                        for (const auto& nextgroup : nextgroups[onenum])
+                        if (If_in_next[combined] == false) // 如果nextgroups中没有该项
                         {
-                            if (nextgroup == combined)
-                            {
-                                flag = true;
-                                break;
-                            }
-                        }
-                        if (!flag)
-                        {
-                            nextgroups[onenum].push_back(combined);
+                            nextgroups[Countone(combined)].push_back(combined);
+                            If_in_next[combined] = true;
                         }
                         // 标记合并的项
                         used[i][j] = true;
