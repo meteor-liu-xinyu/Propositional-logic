@@ -8,6 +8,7 @@ Reasoning::Reasoning()
     openNF = true;
     openKanuo = true;
     openKanuoSimplify = true;
+    testing = false;
     return;
 }
 
@@ -70,6 +71,26 @@ void Reasoning::Input()
         skip = true;
         return;
     }
+    else if (input == "test" || input == "TEST") // 测试模式，输出运算过程
+    {
+        testing = true;
+        cout << "测试模式开启" << endl;
+        skip = true;
+        return;
+    }
+    else if (input == "/help" || input == "/HELP" || input == "/?" || input == "/h" || input == "/H") // 输出帮助信息
+    {
+        cout << "否定:~、合取:^、析取:v/否定:`或'或‘或’、合取:*、析取:+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
+        cout << "命题变元不区分大小写,只能为A-Z除V外的字母,支持中文括号" << endl;
+        cout << "输入/end或/exit结束,/setting设置输出选项,/clear清空页面" << endl;
+        cout << "支持离散数学和数字逻辑两种符号体系，请勿混用" << endl;
+        cout << "示例输入:~(~A^Bv(A^~BVc)^A>C)>(Cv(A<B))" << endl;
+        cout << "示例输入:(A`(B+C`))`(A+B`+C) 或 (A`(B+C`))`*(A+B`+C)" << endl;
+        cout << "示例输入:F(x,y,z)=∑ m(2,3,5,7)或F(x,y,z)=∏ M(2,3,5,7)" << endl;
+        skip = true;
+        return;
+    }
+    
 
     // 将中文括号转换为英文括号
     for (int i = 0; i < input.length(); i++)
@@ -400,6 +421,11 @@ int Reasoning::CalculateValue(int n) // 计算真值表n行的真值
         }
     }
 
+    if (testing) //!test
+    {
+        cout << n << "赋值->" << temp << endl;
+    }
+
     while (temp[0] == '(')
     {
         // 计算最靠左侧的最内侧的一对括号边界
@@ -442,6 +468,11 @@ int Reasoning::CalculateValue(int n) // 计算真值表n行的真值
                     break;
                 }
             }
+        }
+
+        if (testing) // !test
+        {
+            cout << "not运算后->" << temp << endl;
         }
 
         // 计算其他运算
@@ -487,6 +518,11 @@ int Reasoning::CalculateValue(int n) // 计算真值表n行的真值
         // 删除剩下的空括号
         temp.erase(left+2, 1);
         temp.erase(left, 1);
+
+        if (testing) // !test
+        {
+            cout << "其他运算后->" << temp << endl;
+        }
     }
 
     if (temp[0] == 'T')
@@ -970,9 +1006,36 @@ void Reasoning::QM() // 卡诺图化简
         groups[Countone(temp)].push_back(temp);
     }
 
+    if (testing) // !test
+    {
+        for (int i = 0; i < groups.size(); i++)
+        {
+            cout << i << "个1组: ";
+            for (const auto& term : groups[i])
+            {
+                cout << term << " ";
+            }
+            cout << endl;
+        }
+    }
+    
+
     while (!endinter) // 循环合并项
     {
         groups = QMCombine(groups); // 合并项
+        if (testing) // !test
+        {
+            cout << "合并后: " << endl;
+            for (int i = 0; i < groups.size(); i++)
+            {
+                cout << i << "个1组: ";
+                for (const auto& term : groups[i])
+                {
+                    cout << term << " ";
+                }
+                cout << endl;
+            }
+        }
     }
 
     // 生成最终PI
@@ -1022,6 +1085,20 @@ void Reasoning::QM() // 卡诺图化简
             {
                 table[i][j] = 0;
             }
+        }
+    }
+
+    if (testing) // !test
+    {
+        cout << "基本蕴含项表: " << endl;
+        for (int i = 0; i < finalPIsize; i++)
+        {
+            cout << finalPI[i] << "  ";
+            for (int j = 0; j < pow(2,Argnum); j++)
+            {
+                cout << table[i][j] << "  ";
+            }
+            cout << endl;
         }
     }
 
@@ -1130,6 +1207,15 @@ void Reasoning::QM() // 卡诺图化简
         if (hashTable[i] >= 0)
         {
             finalEPI.push_back(finalPI[i]);
+        }
+    }
+
+    if (testing) // !test
+    {
+        cout << "最终的基本蕴含项: " << endl;
+        for (const auto& term : finalEPI)
+        {
+            cout << term << endl;
         }
     }
 
