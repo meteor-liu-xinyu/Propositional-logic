@@ -785,45 +785,40 @@ void Reasoning::PrintNF() // 打印主合取、析取范式
 
 void Reasoning::Setting() // 设置输出选项
 {
+    string temp;
+    openTheTruthTable = false;
+    openNF = false;
+    openKanuo = false;
+    openKanuoSimplify = false;
     cout << "是否输出真值表(1/0):";
-    cin >> openTheTruthTable;
-    if (openTheTruthTable != 0 && openTheTruthTable != 1)
+    getline(cin, temp);
+    if (temp[0] != '0')
     {
-        cout << "输入错误" << endl;
-        while (getchar() != '\n');
-        Setting();
+        openTheTruthTable = true;
     }
     cout << "是否输出主合取+析取范式(1/0):";
-    cin >> openNF;
-    if (openNF != 0 && openNF != 1)
+    getline(cin, temp);
+    if (temp[0] != '0')
     {
-        cout << "输入错误" << endl;
-        while (getchar() != '\n');
-        Setting();
+        openNF = true;
     }
     cout << "是否输出卡诺图(1/0):";
-    cin >> openKanuo;
-    if (openKanuo != 0 && openKanuo != 1)
+    getline(cin, temp);
+    if (temp[0] != '0')
     {
-        cout << "输入错误" << endl;
-        while (getchar() != '\n');
-        Setting();
+        openKanuo = true;
     }
     cout << "是否输出卡诺图化简(1/0):";
-    cin >> openKanuoSimplify;
-    if (openKanuoSimplify != 0 && openKanuoSimplify != 1)
+    getline(cin, temp);
+    if (temp[0] != '0')
     {
-        cout << "输入错误" << endl;
-        while (getchar() != '\n');
-        Setting();
+        openKanuoSimplify = true;
     }
-    while(getchar()!='\n');
     if (openTheTruthTable == false && openNF == false && openKanuo == false && openKanuoSimplify == false)
     {
         cout << "至少选择一个输出选项" << endl;
         Setting();
     }
-    cout << "-------------------------------------------------------------------------------";
 }
 
 void Reasoning::Run()
