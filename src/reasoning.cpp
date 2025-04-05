@@ -71,7 +71,7 @@ void Reasoning::Input()
         skip = true;
         return;
     }
-    else if (input == "test" || input == "TEST") // 测试模式，输出运算过程
+    else if (input == "/test" || input == "/TEST") // 测试模式，输出运算过程
     {
         testing = true;
         cout << "测试模式开启" << endl;
@@ -421,11 +421,6 @@ int Reasoning::CalculateValue(int n) // 计算真值表n行的真值
         }
     }
 
-    if (testing) //!test
-    {
-        cout << n << "赋值->" << temp << endl;
-    }
-
     while (temp[0] == '(')
     {
         // 计算最靠左侧的最内侧的一对括号边界
@@ -468,11 +463,6 @@ int Reasoning::CalculateValue(int n) // 计算真值表n行的真值
                     break;
                 }
             }
-        }
-
-        if (testing) // !test
-        {
-            cout << "not运算后->" << temp << endl;
         }
 
         // 计算其他运算
@@ -518,11 +508,6 @@ int Reasoning::CalculateValue(int n) // 计算真值表n行的真值
         // 删除剩下的空括号
         temp.erase(left+2, 1);
         temp.erase(left, 1);
-
-        if (testing) // !test
-        {
-            cout << "其他运算后->" << temp << endl;
-        }
     }
 
     if (temp[0] == 'T')
@@ -942,14 +927,14 @@ void Reasoning::MakeKanuo() // 生成卡诺图
 void Reasoning::QM() // 卡诺图化简
 {
     cout << "-----------------------------------------" << endl;
-    cout << "卡诺图化简结果: ";
     if (Argnum == 1)
     {
-        cout << "只有一个变元,无需化简" << endl;
+        cout << "卡诺图化简结果: 只有一个变元,无需化简" << endl;
         return;
     }
     if (openNF == false) // 未调用NF()函数，无DNFstr和CNFstr
     {
+        cout << "卡诺图化简结果: ";
         bool alltrue = true;
         bool allfalse = true;
         for (const auto& i : Value)
@@ -980,6 +965,7 @@ void Reasoning::QM() // 卡诺图化简
     }
     else
     {
+        cout << "卡诺图化简结果: ";
         if (DNFstr == "F")
         {
             cout << "该命题为重言式,无需化简" << endl;
@@ -1008,6 +994,7 @@ void Reasoning::QM() // 卡诺图化简
 
     if (testing) // !test
     {
+        cout << endl;
         for (int i = 0; i < groups.size(); i++)
         {
             cout << i << "个1组: ";
@@ -1017,6 +1004,7 @@ void Reasoning::QM() // 卡诺图化简
             }
             cout << endl;
         }
+        cout << endl;
     }
     
 
@@ -1036,6 +1024,7 @@ void Reasoning::QM() // 卡诺图化简
                 cout << endl;
             }
         }
+        cout << endl;
     }
 
     // 生成最终PI
@@ -1215,8 +1204,9 @@ void Reasoning::QM() // 卡诺图化简
         cout << "最终的基本蕴含项: " << endl;
         for (const auto& term : finalEPI)
         {
-            cout << term << endl;
+            cout << term << "   ";
         }
+        cout << endl;
     }
 
     // 从finalEPI中计算kanuo化简结果
@@ -1266,7 +1256,7 @@ void Reasoning::QM() // 卡诺图化简
         kanuo.pop_back();
     }
 
-    cout << kanuo << endl;
+    cout << "卡诺图化简结果: " << kanuo << endl;
 }
 
 vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups) // 合并项
