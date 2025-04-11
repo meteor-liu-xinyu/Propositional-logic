@@ -4,3 +4,4 @@ chcp 65001 >nul
 
 :: 运行 main.exe
 main.exe
+pause

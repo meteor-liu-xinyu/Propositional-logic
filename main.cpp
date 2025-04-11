@@ -10,7 +10,6 @@ int main()
 
     reasoning.Run();
 
-    cout << "已退出,按任意键关闭程序" << endl;
-    _getch();
+    cout << "已退出" << endl;
     return 0;
 }
