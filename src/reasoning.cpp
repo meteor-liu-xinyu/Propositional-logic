@@ -12,6 +12,11 @@ Reasoning::Reasoning()
     return;
 }
 
+Reasoning::~Reasoning()
+{
+    return;
+}
+
 void Reasoning::Init()
 {
     // 重新初始化
@@ -595,7 +600,6 @@ void Reasoning::Cal() // 计算真值表
 
 void Reasoning::MakeTable() // 打印真值表
 {
-    cout << "-----------------------------------------";
     cout << endl << "真值表:" << endl;
     for (int i = 0; i < Argnum; i++)
     {
@@ -663,100 +667,98 @@ void Reasoning::NF()
     string NFstr[2] = {};
     string NFMstr[2] = {"∏ M(","∑ m("};
 
-    int count = 0;
+    int count[2] = {0, 0};
     for (int i = 0; i < powArgnum; i++)
     {
-        string num = to_string(i);
+        int CorD = Value[i]; // 0--CNF, 1--DNF
+        NFMstr[CorD].append(to_string(i));
+        NFMstr[CorD].push_back(',');
         string binstr = ToBin[i]; // 获取二进制数
-        NFMstr[Value[i]].append(num);
-        NFMstr[Value[i]].push_back(',');
-        if (!(Value[i] == 1 && mode == 2))
+        if (!(CorD == 1 && mode == 2))
         {
             NFstr[Value[i]].push_back('(');
         }
         for (int j = 0; j < Argnum; j++)
         {
-            if (binstr[j] == ('1'-Value[i]))
+            if (binstr[j] == '1' - CorD)
             {
                 if (mode == 1)
                 {
-                    NFstr[Value[i]].push_back('~');
-                    NFstr[Value[i]].push_back(ArgName[j]);
+                    NFstr[CorD].push_back('~');
+                    NFstr[CorD].push_back(ArgName[j]);
                 }
-                else // mode == 2
+                else if (mode == 2)
                 {
-                    NFstr[Value[i]].push_back(ArgName[j]);
-                    NFstr[Value[i]].push_back('`');
+                    NFstr[CorD].push_back(ArgName[j]);
+                    NFstr[CorD].push_back('`');
                 }
+            }
+            else
+            {
+                NFstr[CorD].push_back(ArgName[j]);
             }
             if (j != Argnum-1)
             {
-                if (Value[i] == 0)
+                if (CorD == 0)
                 {
                     if (mode == 1)
                     {
                         NFstr[0].push_back('v');
                     }
-                    else // mode == 2
+                    else if (mode == 2)
                     {
                         NFstr[0].push_back('+');
                     }
                 }
-                else // Value[i] == 1
+                else // CorD == 1
                 {
                     if (mode == 1)
                     {
                         NFstr[1].push_back('^');
                     }
-                    // mode == 2 不做操作
                 }
-
             }
         }
-        if (!(Value[i] == 1 && mode == 2))
+        if (CorD == 0)
         {
-            NFstr[Value[i]].push_back(')');
-        }
-        if (Value[i] == 0)
-        {
+            NFstr[0].push_back(')');
             if (mode == 1)
             {
                 NFstr[0].push_back('^');
             }
-            // mode == 2 不做操作
         }
-        else // Value[i] == 1
+        else // CorD == 1
         {
             if (mode == 1)
             {
+                NFstr[1].push_back(')');
                 NFstr[1].push_back('v');
             }
-            else // mode == 2
+            else if (mode == 2)
             {
                 NFstr[1].push_back('+');
             }
         }
-        count++;
-        if (count % 8 == 0 && count != 0)
+        count[CorD]++;
+        if (count[CorD] % 8 == 0 && NFstr[CorD][NFstr[CorD].length()-1] != '\n' && count[CorD] != 0)
         {
-            if (NFstr[0][NFstr[0].length()-1] != '\n')
-            {
-                NFstr[0].push_back('\n');
-            }
-            else // DNFstr[DNFstr.length()-1] != '\n'
-            {
-                NFstr[1].push_back('\n');
-            }
+            NFMstr[CorD].push_back('\n');
         }
+    }
+    if (NFMstr[0][NFMstr[0].length()-1] == '\n')
+    {
+        NFMstr[0].pop_back();
+    }
+    if (NFMstr[1][NFMstr[1].length()-1] == '\n')
+    {
+        NFMstr[1].pop_back();
     }
     if (mode == 1)
     {
         NFstr[0].pop_back();
     }
-    NFstr[0].pop_back();
     NFMstr[0].pop_back();
     NFMstr[0].push_back(')');
-
     NFstr[1].pop_back();
     NFMstr[1].pop_back();
     NFMstr[1].push_back(')');
@@ -770,11 +772,6 @@ void Reasoning::NF()
 void Reasoning::PrintNF() // 打印主合取、析取范式
 {
     NF();
-    if (CNFstr.size() == 0 && DNFstr.size() == 0) // 如果没有内容，则不输出
-    {
-        return;
-    }
-    cout << "-----------------------------------------";
     cout << endl << "主合取范式:" << endl;
     cout << CNFstr << endl;
     cout << CNFMstr << endl;
@@ -848,27 +845,32 @@ void Reasoning::Run()
         Cal();
         if (openTheTruthTable)
         {
+            cout << "-----------------------------------------";
             MakeTable(); // 生成真值表
         }
         if (openNF)
         {
+            cout << "-----------------------------------------";
             PrintNF(); // 打印结果
         }
         if (openKanuo)
         {
+            cout << "-----------------------------------------" << endl;
             MakeKanuo(); // 生成卡诺图
         }
         if (openKanuoSimplify)
         {
+            cout << "-----------------------------------------" << endl;
             QM(); // 生成卡诺图化简
+            cout << "卡诺图化简结果: " << kanuo << endl;
         }
         cout << "-------------------------------------------------------------------------------";
+        // break; // !test
     }
 }
 
 void Reasoning::MakeKanuo() // 生成卡诺图
 {
-    cout << "-----------------------------------------" << endl;
     if (Argnum != 3 && Argnum != 4)
     {
         cout << "不支持" << Argnum << "个变元的卡诺图" << endl;
@@ -925,7 +927,6 @@ void Reasoning::MakeKanuo() // 生成卡诺图
 
 void Reasoning::QM() // 卡诺图化简
 {
-    cout << "-----------------------------------------" << endl;
     if (Argnum == 1)
     {
         cout << "卡诺图化简结果: 只有一个变元,无需化简" << endl;
@@ -952,12 +953,12 @@ void Reasoning::QM() // 卡诺图化简
         }
         if (alltrue)
         {
-            cout << "卡诺图化简结果: 该命题为永真式,无需化简" << endl;
+            cout << "卡诺图化简结果: T" << endl;
             return;
         }
         if (allfalse)
         {
-            cout << "卡诺图化简结果: 该命题为重言式,无需化简" << endl;
+            cout << "卡诺图化简结果: F" << endl;
             return;
         }
     }
@@ -965,12 +966,12 @@ void Reasoning::QM() // 卡诺图化简
     {
         if (DNFstr == "F")
         {
-            cout << "卡诺图化简结果: 该命题为重言式,无需化简" << endl;
+            cout << "卡诺图化简结果: F" << endl;
             return;
         }
         else if (CNFstr == "T")
         {
-            cout << "卡诺图化简结果: 该命题为永真式,无需化简" << endl;
+            cout << "卡诺图化简结果: T" << endl;
             return;
         }
     }
@@ -1255,8 +1256,6 @@ void Reasoning::QM() // 卡诺图化简
         }
     }
     kanuo.pop_back();
-
-    cout << "卡诺图化简结果: " << kanuo << endl;
 }
 
 vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups) // 合并项
@@ -1320,9 +1319,4 @@ vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups
     }
 
     return nextgroups;
-}
-
-Reasoning::~Reasoning()
-{
-    return;
 }
