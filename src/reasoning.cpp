@@ -41,6 +41,7 @@ void Reasoning::Input()
 
     cout << endl << "请输入：";
     getline(cin, input);
+    // input = "F(A,B,C,D)=∑ m(0,2,3,5,6,7,8,9)+ ∑ d(10,11,12,13,14,15)"; // !测试用例
     // input = "(A+B`)(A+C)"; // !测试用例
     // input = "F(a,b,c,d)=∑(1,3,4,5,7,8,9,11,15)"; // !测试用例
     cout << endl;
@@ -574,9 +575,93 @@ void Reasoning::Cal() // 计算真值表
         }
         int tempnum = atoi(temp.c_str());
         Value[tempnum] = !Value[tempnum];
+        temp.clear();
+
+        input.erase(0, i+1);
+        i = 0;
+        if (input[i] == '+' && input[i+1] == '\342' && input[i+2] == '\210' && input[i+3] == '\221' && input[i+4] == 'D')
+        {
+            input.erase(i, 5);
+            vector<int> unrelatedItems;
+            i++;
+            for (; input[i] != ')'; i++)
+            {
+                if (!(input[i] >= '0' && input[i] <= '9') && input[i]!= ',')
+                {
+                    cout << "输入有误" << endl;
+                    skip = true;
+                    return;
+                }
+                if (input[i] != ',')
+                {
+                    temp.push_back(input[i]);
+                }
+                else
+                {
+                    int tempnum = atoi(temp.c_str());
+                    unrelatedItems.push_back(tempnum);
+                    temp.clear();
+                }
+            }
+            int tempnum = atoi(temp.c_str());
+            unrelatedItems.push_back(tempnum);
+
+            int unrelatedItemsSize = unrelatedItems.size();
+
+            unordered_map<int,string> tempToBin; // 临时哈希表
+            for (int j = 0; j < pow(2,unrelatedItemsSize); j++)
+            {
+                string binstr;
+                for (int k = 0; k < unrelatedItemsSize; k++)
+                {
+                    binstr += (j >> k) & 1 ? '1' : '0'; // 将十进制数转换为二进制数
+                }
+                // 反转字符串
+                for (int k = 0; k < binstr.length() / 2; k++)
+                {
+                    char temp = binstr[k];
+                    binstr[k] = binstr[binstr.length() - k - 1];
+                    binstr[binstr.length() - k - 1] = temp;
+                }
+                tempToBin[j] = binstr;
+            }
+
+            vector<string> kanuo_all;
+            for (int j = 0; j < pow(2,unrelatedItemsSize); j++)
+            {
+                for (int k = 0; k < unrelatedItemsSize; k++)
+                {
+                    Value[unrelatedItems[k]] = tempToBin[j][k] - '0';
+                }
+                for (int k = 0; k < powArgnum; k++)
+                {
+                    if (Value[k] == 1)
+                    {
+                        PI.push_back(k);
+                    }
+                }
+                QM();
+                kanuo_all.push_back(kanuo);
+                kanuo.clear();
+                PI.clear();
+            }
+
+            int j = 0;
+            for (int k = 0; k < pow(2,unrelatedItemsSize); k++)
+            {
+                if (kanuo_all[j].size()>kanuo_all[k].size())
+                {
+                    j = k;
+                }
+            }
+
+            for (int k = 0; k < unrelatedItemsSize; k++)
+            {
+                Value[unrelatedItems[k]] = tempToBin[j][k] - '0';
+            }
+        }
 
         mode = 2; // 化归位mode2的情况
-
         for (int i = 0; i < powArgnum; i++)
         {
             if (Value[i] == 1)
@@ -742,16 +827,16 @@ void Reasoning::NF()
         count[CorD]++;
         if (count[CorD] % 8 == 0 && NFstr[CorD][NFstr[CorD].length()-1] != '\n' && count[CorD] != 0)
         {
-            NFMstr[CorD].push_back('\n');
+            NFstr[CorD].push_back('\n');
         }
     }
-    if (NFMstr[0][NFMstr[0].length()-1] == '\n')
+    if (NFstr[0][NFstr[0].length()-1] == '\n')
     {
-        NFMstr[0].pop_back();
+        NFstr[0].pop_back();
     }
-    if (NFMstr[1][NFMstr[1].length()-1] == '\n')
+    if (NFstr[1][NFstr[1].length()-1] == '\n')
     {
-        NFMstr[1].pop_back();
+        NFstr[1].pop_back();
     }
     if (mode == 1)
     {
@@ -1005,7 +1090,7 @@ void Reasoning::QM() // 卡诺图化简
         cout << endl;
     }
 
-
+    endinter = false;
     while (!endinter) // 循环合并项
     {
         groups = QMCombine(groups); // 合并项
