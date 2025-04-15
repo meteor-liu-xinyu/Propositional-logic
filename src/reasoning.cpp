@@ -88,8 +88,8 @@ void Reasoning::Input()
     else if (input == "/help" || input == "/HELP" || input == "/?" || input == "/h" || input == "/H") // 输出帮助信息
     {
         cout << "否定:~、合取:^、析取:v/否定:`(兼容'或‘或’)、合取:*、析取:+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
-        cout << "命题变元不区分大小写,只能为A-Z除V外的字母,支持中文括号" << endl;
-        cout << "输入/end或/exit结束,/setting设置输出选项,/truthtable用真值表形式输入,/clear清空页面,/help帮助" << endl;
+        cout << "命题变元不区分大小写,只能为A-Z除V外的字母,兼容中文括号" << endl;
+        cout << "输入/end或/exit结束,/setting设置输出选项,/truthtable或/t用真值表形式输入,/clear清空页面,/help帮助" << endl;
         cout << "支持离散数学和数字逻辑两种符号体系，请勿混用" << endl;
         cout << "示例输入:~(~A^Bv(A^~BVc)^A>C)>(Cv(A<B))" << endl;
         cout << "示例输入:(A`(B+C`))`(A+B`+C) 或 (A`(B+C`))`*(A+B`+C)" << endl;
@@ -99,7 +99,7 @@ void Reasoning::Input()
         skip = true;
         return;
     }
-    else if (input == "/truthtable" || input == "/TRUTHTABLE") // 输入真值表
+    else if (input == "/truthtable" || input == "/TRUTHTABLE" || input == "/truth" || input == "/TRUTH" || input == "table" || input == "TABLE" || input == "/t" || input == "/T") // 输入真值表
     {
         cout << "请输入命题变元,以逗号分隔" << endl;
         getline(cin, input);
@@ -182,7 +182,7 @@ void Reasoning::Input()
     if (mode == 5)
     {
         FindArg();
-        cout << endl << "真值表输入:" << endl;
+        cout << endl << "真值表输入(请输入0/1/-,-表示无关项):" << endl;
         for (int i = 0; i < Argnum; i++)
         {
             cout << ArgName[i]<< "\t";
@@ -218,11 +218,10 @@ void Reasoning::Input()
             }
             else
             {
-                cout << endl << "输入错误" << endl;
+                cout << "输入错误,请重新输入此行" << endl;
                 i--;
                 continue;
             }
-            cout << endl;
         }
         trans_input.erase(trans_input.length() - 1, 1);
         trans_input += ")";
