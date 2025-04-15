@@ -31,6 +31,7 @@ void Reasoning::Init()
     DNFmstr.clear();
     kanuo.clear();
     PI.clear();
+    unrelatedItems.clear();
     mode = 0;
     endinter = false;
 }
@@ -400,6 +401,7 @@ void Reasoning::BuildHashTable()
         }
         ToBin[i] = binstr;
         ToDec[binstr] = i;
+        If_unrelated[i] = false; // 初始化无关项
     }
 }
 
@@ -582,7 +584,6 @@ void Reasoning::Cal() // 计算真值表
         if (input[i] == '+' && input[i+1] == '\342' && input[i+2] == '\210' && input[i+3] == '\221' && input[i+4] == 'D')
         {
             input.erase(i, 5);
-            vector<int> unrelatedItems;
             i++;
             for (; input[i] != ')'; i++)
             {
@@ -600,11 +601,13 @@ void Reasoning::Cal() // 计算真值表
                 {
                     int tempnum = atoi(temp.c_str());
                     unrelatedItems.push_back(tempnum);
+                    If_unrelated[tempnum] = true;
                     temp.clear();
                 }
             }
             int tempnum = atoi(temp.c_str());
             unrelatedItems.push_back(tempnum);
+            If_unrelated[tempnum] = true;
 
             int unrelatedItemsSize = unrelatedItems.size();
 
@@ -707,7 +710,14 @@ void Reasoning::MakeTable() // 打印真值表
         {
             cout << "  ";
         }
-        cout << "  " << Value[i] << endl;
+        if (If_unrelated[i] == true)
+        {
+            cout << "  ?=" << Value[i] << endl;
+        }
+        else
+        {
+            cout << "  " << Value[i] << endl;
+        }
     }
 }
 
@@ -974,13 +984,27 @@ void Reasoning::MakeKanuo() // 生成卡诺图
             cout << tempbin[i] << "  \t";
             for (int j = 0; j < 2; j++)
             {
-                if (Value[temp1[i]+temp2[j]] == 1)
+                if (If_unrelated[temp1[i]+temp2[j]] == true)
                 {
-                    cout << " 1 \t";
+                    if (Value[temp1[i]+temp2[j]] == 1)
+                    {
+                        cout << "?=1 \t";
+                    }
+                    else
+                    {
+                        cout << " ?=0 \t";
+                    }
                 }
                 else
                 {
-                    cout << " 0 \t";
+                    if (Value[temp1[i]+temp2[j]] == 1)
+                    {
+                        cout << " 1 \t";
+                    }
+                    else
+                    {
+                        cout << " 0 \t";
+                    }
                 }
             }
             cout << endl;
@@ -997,13 +1021,27 @@ void Reasoning::MakeKanuo() // 生成卡诺图
             cout << tempbin[i] << "  \t";
             for (int j = 0; j < 4; j++)
             {
-                if (Value[temp1[i]+temp2[j]] == 1)
+                if (If_unrelated[temp1[i]+temp2[j]] == true)
                 {
-                    cout << " 1 \t";
+                    if (Value[temp1[i]+temp2[j]] == 1)
+                    {
+                        cout << "?=1 \t";
+                    }
+                    else
+                    {
+                        cout << " ?=0 \t";
+                    }
                 }
                 else
                 {
-                    cout << " 0 \t";
+                    if (Value[temp1[i]+temp2[j]] == 1)
+                    {
+                        cout << " 1 \t";
+                    }
+                    else
+                    {
+                        cout << " 0 \t";
+                    }
                 }
             }
             cout << endl;
