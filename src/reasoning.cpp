@@ -87,17 +87,24 @@ void Reasoning::Input()
     }
     else if (input == "/help" || input == "/HELP" || input == "/?" || input == "/h" || input == "/H") // 输出帮助信息
     {
-        cout << "否定:~、合取:^、析取:v/否定:`或'或‘或’、合取:*、析取:+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
+        cout << "否定:~、合取:^、析取:v/否定:`(兼容'或‘或’)、合取:*、析取:+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
         cout << "命题变元不区分大小写,只能为A-Z除V外的字母,支持中文括号" << endl;
-        cout << "输入/end或/exit结束,/setting设置输出选项,/clear清空页面" << endl;
+        cout << "输入/end或/exit结束,/setting设置输出选项,/truthtable用真值表形式输入,/clear清空页面,/help帮助" << endl;
         cout << "支持离散数学和数字逻辑两种符号体系，请勿混用" << endl;
         cout << "示例输入:~(~A^Bv(A^~BVc)^A>C)>(Cv(A<B))" << endl;
         cout << "示例输入:(A`(B+C`))`(A+B`+C) 或 (A`(B+C`))`*(A+B`+C)" << endl;
         cout << "示例输入:F(x,y,z)=∑ m(2,3,5,7)或F(x,y,z)=∏ M(2,3,5,7)" << endl;
+        cout << "示例输入:F(A,B,C,D)=∑ m(0,2,3,5,6,7,8,9)+ ∑ d(10,11,12,13,14,15)" << endl;
+        cout << "-------------------------------------------------------------------------------";
         skip = true;
         return;
     }
-
+    else if (input == "/truthtable" || input == "/TRUTHTABLE") // 输入真值表
+    {
+        cout << "请输入命题变元,以逗号分隔" << endl;
+        getline(cin, input);
+        mode = 5; // 真值表模式
+    }
 
     // 将中文括号转换为英文括号
     for (int i = 0; i < input.length(); i++)
@@ -170,6 +177,71 @@ void Reasoning::Input()
         cout << "括号不匹配" << endl;
         skip = true;
         return;
+    }
+
+    if (mode == 5)
+    {
+        FindArg();
+        cout << endl << "真值表输入:" << endl;
+        for (int i = 0; i < Argnum; i++)
+        {
+            cout << ArgName[i]<< "\t";
+        }
+        cout << " 预期输出的真值 " << endl;
+        string trans_input = "F(";
+        for (int i = 0; i < Argnum; i++)
+        {
+            trans_input += ArgName[i];
+            trans_input += ",";
+        }
+        trans_input.erase(trans_input.length() - 1, 1);
+        trans_input += ")=∑m(";
+        for (int i = 0; i < powArgnum; i++)
+        {
+            string binstr = ToBin[i]; // 获取二进制数
+            for (int j = 0; j < Argnum; j++)
+            {
+                cout << binstr[j] << "\t";
+            }
+            cout << "\t";
+            string temp;
+            getline(cin, temp);
+            if (temp == "1")
+            {
+                trans_input += to_string(i);
+                trans_input += ",";
+            }
+            else if (temp == "0");
+            else if (temp == "-")
+            {
+                unrelatedItems.push_back(i);
+            }
+            else
+            {
+                cout << endl << "输入错误" << endl;
+                i--;
+                continue;
+            }
+            cout << endl;
+        }
+        trans_input.erase(trans_input.length() - 1, 1);
+        trans_input += ")";
+        if (unrelatedItems.size() != 0)
+        {
+            trans_input += "+∑D(";
+            for (int i = 0; i < unrelatedItems.size(); i++)
+            {
+                trans_input += to_string(unrelatedItems[i]);
+                trans_input += ",";
+            }
+            trans_input.erase(trans_input.length() - 1, 1);
+            trans_input += ")";
+        }
+        input = trans_input;
+        unrelatedItems.clear();
+        ArgName.clear();
+        Argnum = 0;
+        powArgnum = 0;
     }
 
     // 判断是否为连乘或连加式
@@ -316,12 +388,12 @@ void Reasoning::FindArg()
 {
     unordered_map<char, bool> If_in_Arg; // 记录命题变元是否在ArgName中
 
-    if (mode == 1 || mode == 2)
+    if (mode == 1 || mode == 2 || mode == 5)
     {
         for (int i = 0; i < input.length(); i++)
         {
             // 跳过符号
-            if (input[i] != '~' && input[i] != '^' && input[i] != 'v' && input[i] != '@' && input[i] != '[' && input[i] != ']' && input[i] != '`' &&input[i] != '*' && input[i] != '+' && input[i] != '>' && input[i] != '<' && input[i] != '(' && input[i] != ')')
+            if (input[i] != '~' && input[i] != '^' && input[i] != 'v' && input[i] != '@' && input[i] != '[' && input[i] != ']' && input[i] != '`' &&input[i] != '*' && input[i] != '+' && input[i] != '>' && input[i] != '<' && input[i] != '(' && input[i] != ')' && input[i] != ',')
             {
                 if (If_in_Arg[input[i]] == false)
                 {
@@ -381,10 +453,16 @@ void Reasoning::FindArg()
             }
         }
     }
+    if (mode == 5)
+    {
+        BuildHashTable();
+    }
 }
 
 void Reasoning::BuildHashTable()
 {
+    ToBin.clear();
+    ToDec.clear();
     for (int i = 0; i < powArgnum; i++)
     {
         string binstr;
@@ -917,13 +995,12 @@ void Reasoning::Run()
 {
     cout << "否定:~、合取:^、析取:v/否定:`(兼容'或‘或’)、合取:*、析取:+、条件:>、双条件:<、异或:@、与非:[、或非:]" << endl;
     cout << "命题变元不区分大小写,只能为A-Z除V外的字母,支持中文括号" << endl;
-    cout << "输入/end或/exit结束,/setting设置输出选项,/clear清空页面" << endl;
+    cout << "输入/end或/exit结束,/setting设置输出选项,/truthtable用真值表形式输入,/clear清空页面,/help帮助" << endl;
     cout << "支持离散数学和数字逻辑两种符号体系，请勿混用" << endl;
     cout << "示例输入:~(~A^Bv(A^~BVc)^A>C)>(Cv(A<B))" << endl;
     cout << "示例输入:(A`(B+C`))`(A+B`+C) 或 (A`(B+C`))`*(A+B`+C)" << endl;
     cout << "示例输入:F(x,y,z)=∑ m(2,3,5,7)或F(x,y,z)=∏ M(2,3,5,7)" << endl;
     cout << "示例输入:F(A,B,C,D)=∑ m(0,2,3,5,6,7,8,9)+ ∑ d(10,11,12,13,14,15)" << endl;
-
     cout << "-------------------------------------------------------------------------------";
     while (1)
     {
