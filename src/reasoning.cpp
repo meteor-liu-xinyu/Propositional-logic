@@ -807,7 +807,7 @@ void Reasoning::MakeTable() // 打印真值表
         }
         else
         {
-            cout << "  " << Value[i] << endl;
+            cout << "   " << Value[i] << endl;
         }
     }
 }
