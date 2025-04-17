@@ -12,5 +12,6 @@ int main()
     reasoning.Run();
 
     cout << "已退出" << endl;
+    system("pause");
     return 0;
 }
