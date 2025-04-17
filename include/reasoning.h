@@ -64,6 +64,7 @@ public:
     void NF();
     void PrintNF();
 
+    vector<string> GenerateGrayCode(int n);
     void MakeKanuo();
 
     void QM();

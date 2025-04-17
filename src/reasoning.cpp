@@ -1069,6 +1069,214 @@ void Reasoning::Run()
 
 void Reasoning::MakeKanuo() // 生成卡诺图
 {
+    if (Argnum <= 2)
+    {
+        cout << "不支持" << Argnum << "个变元的卡诺图" << endl;
+        return;
+    }
+    cout << "卡诺图:" << endl;
+
+    if (Argnum %2 == 1) // 奇数个变元
+    {
+        int n = Argnum / 2 + 1;
+        for (int i = 0; i < n ; i++)
+        {
+            cout << ArgName[i];
+        }
+        cout << "\\";
+        for (int i = 0; i < n-1; i++)
+        {
+            cout << ArgName[i+n];
+        }
+        vector<string> graycode1 = GenerateGrayCode(n); // 生成n位格雷码
+        vector<string> graycode2 = GenerateGrayCode(n-1); // 生成n-1位格雷码
+        for (int i = 0; i < pow(2,n-1); i++)
+        {
+            cout << "\t" << graycode1[i];
+        }
+        cout << endl;
+        vector<int> num1;
+        vector<int> num2;
+        for (int i = 0; i < pow(2,n); i++)
+        {
+            // 将第i个n位格雷码最后添加两个0后转为十进制
+            int temp = 0;
+            string tempstring = graycode1[i];
+            for (int j = 0; j < n-1; j++)
+            {
+                tempstring += "0";
+            }
+            for (int j = 0; j < tempstring.length(); j++)
+            {
+                temp += (tempstring[j] - '0') * pow(2,tempstring.length()-1-j);
+            }
+            num1.push_back(temp);
+        }
+        for (int i = 0; i < pow(2,n-1); i++)
+        {
+            // 将第i个n-1位格雷码转换为十进制数
+            int temp = 0;
+            for (int j = 0; j < n-1; j++)
+            {
+                temp += (graycode2[i][j] - '0') * pow(2,n-2-j);
+            }
+            num2.push_back(temp);
+        }
+        for (int i = 0; i < pow(2,n); i++)
+        {
+            cout << graycode1[i];
+            for (int j = 0; j < n-1; j++)
+            {
+                cout << " ";
+            }
+            cout << "\t";
+            for (int j = 0; j < pow(2,n-1); j++)
+            {
+                if (If_unrelated[num1[i]+num2[j]] == true)
+                {
+                    if (Value[num1[i]+num2[j]] == 1)
+                    {
+                        cout << "?=1 \t";
+                    }
+                    else
+                    {
+                        cout << " ?=0 \t";
+                    }
+                }
+                else
+                {
+                    if (Value[num1[i]+num2[j]] == 1)
+                    {
+                        cout << " 1 \t";
+                    }
+                    else
+                    {
+                        cout << " 0 \t";
+                    }
+                }
+            }
+            cout << endl;
+        }
+    }
+    else if (Argnum == 4)
+    {
+        int n = Argnum / 2;
+        for (int i = 0; i < n ; i++)
+        {
+            cout << ArgName[i];
+        }
+        cout << "\\";
+        for (int i = 0; i < n; i++)
+        {
+            cout << ArgName[i+n];
+        }
+        vector<string> graycode = GenerateGrayCode(n); // 生成n位格雷码
+        for (int i = 0; i < pow(2,n); i++)
+        {
+            cout << "\t" << graycode[i];
+        }
+        cout << endl;
+        vector<int> num1;
+        vector<int> num2;
+        for (int i = 0; i < pow(2,n); i++)
+        {
+            // 将第i个n位格雷码最后添加两个0后转为十进制
+            int temp = 0;
+            string tempstring = graycode[i];
+            for (int j = 0; j < n; j++)
+            {
+                tempstring += "0";
+            }
+            for (int j = 0; j < tempstring.size(); j++)
+            {
+                temp += (tempstring[j] - '0') * pow(2,tempstring.size()-1-j);
+            }
+            num1.push_back(temp);
+        }
+        for (int i = 0; i < pow(2,n); i++)
+        {
+            int temp = 0;
+            for (int j = 0; j < n; j++)
+            {
+                temp += (graycode[i][j] - '0') * pow(2,n-1-j);
+            }
+            num2.push_back(temp);
+        }
+        for (int i = 0; i < pow(2,n); i++)
+        {
+            cout << graycode[i];
+            for (int j = 0; j < n; j++)
+            {
+                cout << " ";
+            }
+            cout << "\t";
+            for (int j = 0; j < pow(2,n); j++)
+            {
+                if (If_unrelated[num1[i]+num2[j]] == true)
+                {
+                    if (Value[num1[i]+num2[j]] == 1)
+                    {
+                        cout << "?=1 \t";
+                    }
+                    else
+                    {
+                        cout << " ?=0 \t";
+                    }
+                }
+                else
+                {
+                    if (Value[num1[i]+num2[j]] == 1)
+                    {
+                        cout << " 1 \t";
+                    }
+                    else
+                    {
+                        cout << " 0 \t";
+                    }
+                }
+            }
+            cout << endl;
+        }
+    }
+}
+
+vector<string> Reasoning::GenerateGrayCode(int n) // 生成n位格雷码
+{
+    vector<string> grayCode;
+
+    // 1 位格雷码
+    grayCode.push_back("0");
+    grayCode.push_back("1");
+
+    // 迭代生成 n 位格雷码
+    for (int i = 2; i <= n; i++)
+    {
+        int currentSize = grayCode.size();
+
+        // 反映当前的 Gray code
+        for (int j = currentSize - 1; j >= 0; j--)
+        {
+            grayCode.push_back(grayCode[j]);
+        }
+
+        // 在上半部分添加 '0'
+        for (int j = 0; j < currentSize; j++)
+        {
+            grayCode[j] = "0" + grayCode[j];
+        }
+
+        // 在下半部分添加 '1'
+        for (int j = currentSize; j < grayCode.size(); j++)
+        {
+            grayCode[j] = "1" + grayCode[j];
+        }
+    }
+
+    return grayCode;
+}
+
+/* void Reasoning::MakeKanuo() // 生成卡诺图
+{
     if (Argnum != 3 && Argnum != 4)
     {
         cout << "不支持" << Argnum << "个变元的卡诺图" << endl;
@@ -1149,7 +1357,7 @@ void Reasoning::MakeKanuo() // 生成卡诺图
             cout << endl;
         }
     }
-}
+} */
 
 void Reasoning::QM() // 卡诺图化简
 {
