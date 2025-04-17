@@ -207,6 +207,7 @@ void Reasoning::Input()
     {
         FindArg();
         cout << endl << "真值表输入(请输入0/1/-,-表示无关项):" << endl;
+        cout << "  \t";
         for (int i = 0; i < Argnum; i++)
         {
             cout << ArgName[i]<< "\t";
@@ -222,6 +223,7 @@ void Reasoning::Input()
         trans_input += ")=∑m(";
         for (int i = 0; i < powArgnum; i++)
         {
+            cout << i << "\t"; // 输出十进制数
             string binstr = ToBin[i]; // 获取二进制数
             for (int j = 0; j < Argnum; j++)
             {
