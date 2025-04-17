@@ -1,5 +1,6 @@
 #include "reasoning.h"
 #include <windows.h>
+#include <conio.h> // 用于 _getch() 函数
 
 int main()
 {
@@ -11,7 +12,7 @@ int main()
 
     reasoning.Run();
 
-    cout << "已退出" << endl;
-    system("pause");
+    cout << "已退出,按任意键关闭" << endl;
+    _getch();
     return 0;
 }
