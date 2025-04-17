@@ -105,10 +105,20 @@ void Reasoning::Input()
         getline(cin, input);
         for (int i = 0; i < input.length(); i++)
         {
-            if (input[i] == ' ') // 去除空格
+            if (input[i] == ' ' || input[i] == ',') // 去除空格和逗号
             {
                 input.erase(i, 1);
                 i--;
+            }
+            if (input[i] >= 'a' && input[i] <= 'z') // 将小写字母转换为大写字母
+            {
+                input[i] = input[i] - 'a' + 'A';
+            }
+            if (!(input[i] >= 'A' && input[i] <= 'Z')) // 判断是否为命题变元
+            {
+                cout << "输入错误" << endl;
+                skip = true;
+                return;
             }
         }
         if (input.size() == 0) // 判断输入是否为空
@@ -406,7 +416,7 @@ void Reasoning::FindArg()
         for (int i = 0; i < input.length(); i++)
         {
             // 跳过符号
-            if (input[i] != '~' && input[i] != '^' && input[i] != 'v' && input[i] != '@' && input[i] != '[' && input[i] != ']' && input[i] != '`' &&input[i] != '*' && input[i] != '+' && input[i] != '>' && input[i] != '<' && input[i] != '(' && input[i] != ')' && input[i] != ',')
+            if (input[i] >= 'A' && input[i] <= 'Z')
             {
                 if (If_in_Arg[input[i]] == false)
                 {
