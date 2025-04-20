@@ -827,12 +827,8 @@ void Reasoning::MakeTable() // 打印真值表
 
 void Reasoning::NF()
 {
-    if (Argnum == 1) // 只有一个变量时,不输出
-    {
-        cout << "只有一个变元,不计算范式" << endl;
-        return;
-    }
-
+    string NFstr[2];
+    string NFMstr[2];
     bool alltrue = true; // 判断是否为永真式
     bool allfalse = true; // 判断是否为重言式
     for (const auto& i : Value)
@@ -850,21 +846,9 @@ void Reasoning::NF()
             break;
         }
     }
-    if (alltrue)
-    {
-        CNFstr = 'T';
-        CNFMstr = 'T';
-        return;
-    }
-    if (allfalse)
-    {
-        DNFstr = 'F';
-        DNFmstr = 'F';
-        return;
-    }
-
-    string NFstr[2] = {};
-    string NFMstr[2] = {"∏ M(","∑ m("};
+    
+    NFMstr[0] = "∏ M(";
+    NFMstr[1] = "∑ m(";
 
     int count[2] = {0, 0};
     for (int i = 0; i < powArgnum; i++)
@@ -961,6 +945,17 @@ void Reasoning::NF()
     NFstr[1].pop_back();
     NFMstr[1].pop_back();
     NFMstr[1].push_back(')');
+    
+    if (alltrue)
+    {
+        NFstr[0] = 'T';
+        NFMstr[0] = 'T';
+    }
+    else if (allfalse)
+    {
+        NFstr[1] = 'F';
+        NFMstr[1] = 'F';
+    }
 
     CNFstr = NFstr[0];
     CNFMstr = NFMstr[0];
@@ -970,6 +965,12 @@ void Reasoning::NF()
 
 void Reasoning::PrintNF() // 打印主合取、析取范式
 {
+    if (Argnum == 1)
+    {
+        cout << endl << "只有一个变元，不计算主合取、析取范式" << endl;
+        return;
+    }
+    
     NF();
     cout << endl << "主合取范式:" << endl;
     cout << CNFstr << endl;
@@ -1160,7 +1161,7 @@ void Reasoning::MakeKanuo() // 生成卡诺图
             cout << endl;
         }
     }
-    else if (Argnum == 4)
+    else //Argnum % 2 == 0
     {
         int n = Argnum / 2;
         for (int i = 0; i < n ; i++)
@@ -1276,90 +1277,6 @@ vector<string> Reasoning::GenerateGrayCode(int n) // 生成n位格雷码
 
     return grayCode;
 }
-
-/* void Reasoning::MakeKanuo() // 生成卡诺图
-{
-    if (Argnum != 3 && Argnum != 4)
-    {
-        cout << "不支持" << Argnum << "个变元的卡诺图" << endl;
-        return;
-    }
-    cout << "卡诺图:" << endl;
-    if (Argnum == 3)
-    {
-        cout << ArgName[0] << ArgName[1] << "\\" << ArgName[2] << "\t 0 \t 1" << endl;
-        vector<int> temp1 = {0,2,6,4};
-        vector<int> temp2 = {0,1};
-        vector<string> tempbin = {"00","01","11","10"};
-        for (int i = 0; i < 4; i++)
-        {
-            cout << tempbin[i] << "  \t";
-            for (int j = 0; j < 2; j++)
-            {
-                if (If_unrelated[temp1[i]+temp2[j]] == true)
-                {
-                    if (Value[temp1[i]+temp2[j]] == 1)
-                    {
-                        cout << "?=1 \t";
-                    }
-                    else
-                    {
-                        cout << " ?=0 \t";
-                    }
-                }
-                else
-                {
-                    if (Value[temp1[i]+temp2[j]] == 1)
-                    {
-                        cout << " 1 \t";
-                    }
-                    else
-                    {
-                        cout << " 0 \t";
-                    }
-                }
-            }
-            cout << endl;
-        }
-    }
-    else if (Argnum == 4)
-    {
-        cout << ArgName[0] << ArgName[1] << "\\" << ArgName[2] << ArgName[3] << "\t 00 \t 01 \t 11 \t 10" << endl;
-        vector<int> temp1 = {0,4,12,8};
-        vector<int> temp2 = {0,1,3,2};
-        vector<string> tempbin = {"00","01","11","10"};
-        for (int i = 0; i < 4; i++)
-        {
-            cout << tempbin[i] << "  \t";
-            for (int j = 0; j < 4; j++)
-            {
-                if (If_unrelated[temp1[i]+temp2[j]] == true)
-                {
-                    if (Value[temp1[i]+temp2[j]] == 1)
-                    {
-                        cout << "?=1 \t";
-                    }
-                    else
-                    {
-                        cout << " ?=0 \t";
-                    }
-                }
-                else
-                {
-                    if (Value[temp1[i]+temp2[j]] == 1)
-                    {
-                        cout << " 1 \t";
-                    }
-                    else
-                    {
-                        cout << " 0 \t";
-                    }
-                }
-            }
-            cout << endl;
-        }
-    }
-} */
 
 void Reasoning::QM() // 卡诺图化简
 {
