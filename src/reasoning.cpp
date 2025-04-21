@@ -1631,7 +1631,12 @@ vector<vector<string>> Reasoning::QMCombine(const vector<vector<string>>& groups
         }
     }
 
-    vector<vector<bool>> used(groups.size(), vector<bool>(groups.size(), false)); // 标记是否被合并
+    vector<vector<bool>> used; // 标记是否被合并
+    for (int i = 0; i < groups.size(); i++)
+    {
+        vector<bool> temp(groups[i].size(), false);
+        used.push_back(temp);
+    }
 
     for (int i = 0; i < groups.size()-1; i++) // 两两遍历所有组
     {
